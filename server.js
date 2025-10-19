@@ -90,9 +90,91 @@ app.get('/debug', (req, res) => {
             '/dashboard',
             '/patient-form',
             '/test-form',
-            '/webhook/formspree'
+            '/webhook/formspree',
+            '/setup-guide'
         ]
     });
+});
+
+// Setup guide route
+app.get('/setup-guide', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    try {
+        const setupGuidePath = path.join(__dirname, 'GOOGLE_SHEETS_SETUP.md');
+        const setupGuide = fs.readFileSync(setupGuidePath, 'utf8');
+        
+        const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Google Sheets Setup Guide - myPCP</title>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    margin: 0; 
+                    padding: 20px;
+                    background-color: #F9F5E9;
+                    color: #1E1E1E;
+                    line-height: 1.6;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                h1 { color: #2E8C83; border-bottom: 3px solid #3CB6AD; padding-bottom: 10px; }
+                h2 { color: #2E8C83; margin-top: 30px; }
+                h3 { color: #1E1E1E; }
+                code { 
+                    background: #f4f4f4; 
+                    padding: 2px 6px; 
+                    border-radius: 4px; 
+                    font-family: 'Courier New', monospace;
+                }
+                pre { 
+                    background: #f4f4f4; 
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    overflow-x: auto;
+                    border-left: 4px solid #3CB6AD;
+                }
+                .back-btn {
+                    background: #3CB6AD;
+                    color: white;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    display: inline-block;
+                    margin-bottom: 20px;
+                }
+                .back-btn:hover { background: #2E8C83; }
+                ul, ol { padding-left: 20px; }
+                li { margin-bottom: 8px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+                ${setupGuide.replace(/\n/g, '<br>').replace(/#{1,6} /g, (match) => {
+                    const level = match.length - 2;
+                    return `<h${level}>`;
+                }).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')}
+            </div>
+        </body>
+        </html>
+        `;
+        
+        res.send(html);
+    } catch (error) {
+        res.status(500).send('Setup guide not found');
+    }
 });
 
 // Initialize services with error handling
@@ -623,7 +705,7 @@ function generateDashboardHTML(data) {
             max-height: calc(100vh - 120px);
             overflow: hidden;
         }
-        /* Force deployment refresh */
+        /* Force deployment refresh - v2 */
         .left-panel, .right-panel {
             display: flex;
             flex-direction: column;
@@ -831,7 +913,7 @@ function generateDashboardHTML(data) {
                     <img src="/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="logo-fallback" style="display: none;">🏥</div>
                     <div class="clinic-info">
-                        <h1>myPCP Internal Medicine</h1>
+                        <h1>Internal Medicine Clinic</h1>
                         <p>Miami, FL • (305) 555-0123</p>
                     </div>
                 </div>
@@ -973,6 +1055,14 @@ function generateDashboardHTML(data) {
                         <span class="metric-label">Mode</span>
                         <span class="metric-value">${data.message.includes('TEST MODE') ? 'Test Mode' : 'Production'}</span>
                     </div>
+                    ${data.message.includes('TEST MODE') ? `
+                    <div class="metric-row" style="background: #fff3cd; padding: 8px; border-radius: 4px; margin-top: 10px;">
+                        <span class="metric-label" style="color: #856404; font-weight: 600;">🔗 Setup Google Sheets</span>
+                        <span class="metric-value" style="color: #856404;">
+                            <a href="/setup-guide" style="color: #2E8C83; text-decoration: none;">View Setup Guide</a>
+                        </span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
         </div>
