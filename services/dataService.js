@@ -8,13 +8,10 @@ class DataService {
   }
 
   generateShortId() {
-    // Generate a short, readable ID like "P001", "P002", etc.
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = 'P';
-    for (let i = 0; i < 3; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+    // Generate a short, numeric ID like "1001", "1002", etc.
+    const min = 1000;
+    const max = 9999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   async loadData() {

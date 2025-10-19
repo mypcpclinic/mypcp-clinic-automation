@@ -859,6 +859,54 @@ function generateDashboardHTML(data) {
             color: #6c757d;
         }
         
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-suggestion {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background 0.2s ease;
+        }
+        
+        .search-suggestion:hover {
+            background: #f8f9fa;
+        }
+        
+        .search-suggestion:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-name {
+            font-weight: 500;
+            color: #1E1E1E;
+        }
+        
+        .suggestion-details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        
         .left-panel, .right-panel {
             display: flex;
             flex-direction: column;
@@ -1080,7 +1128,10 @@ function generateDashboardHTML(data) {
         <!-- Search Section -->
         <div class="search-section">
             <div class="search-bar">
-                <input type="text" id="patientSearch" class="search-input" placeholder="Search patients by name, last name, or date of birth...">
+                <div class="search-container">
+                    <input type="text" id="patientSearch" class="search-input" placeholder="Search patients by ID, name, last name, or date of birth...">
+                    <div id="searchSuggestions" class="search-suggestions"></div>
+                </div>
                 <button onclick="searchPatients()" class="search-btn">🔍 Search</button>
                 <button onclick="clearSearch()" class="clear-btn">Clear</button>
             </div>
@@ -1240,6 +1291,140 @@ function generateDashboardHTML(data) {
             </p>
         </div>
     </div>
+    
+    <script>
+        // Patient search functionality
+        let allPatients = ${JSON.stringify(data.recentActivity)};
+        let searchTimeout;
+        
+        function searchPatients() {
+            const searchTerm = document.getElementById('patientSearch').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (!searchTerm) {
+                resultsDiv.innerHTML = '';
+                hideSuggestions();
+                return;
+            }
+            
+            // Search through patients
+            const filteredPatients = allPatients.filter(patient => {
+                const fullName = (patient.name || '').toLowerCase();
+                const nameParts = fullName.split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts[nameParts.length - 1] || '';
+                const patientId = (patient.id || '').toString().toLowerCase();
+                
+                // Check if search term matches ID, first name, last name, or full name
+                return patientId.includes(searchTerm) ||
+                       firstName.includes(searchTerm) || 
+                       lastName.includes(searchTerm) || 
+                       fullName.includes(searchTerm);
+            });
+            
+            if (filteredPatients.length === 0) {
+                resultsDiv.innerHTML = '<p>No patients found matching your search.</p>';
+            } else {
+                let resultsHTML = '<h4>Search Results (' + filteredPatients.length + ' found):</h4><ul>';
+                filteredPatients.forEach(patient => {
+                    resultsHTML += \`<li><a href="/patient/\${patient.id || 'unknown'}" style="color: #3CB6AD; text-decoration: none;">\${patient.name}</a> - \${patient.type} (\${patient.time})</li>\`;
+                });
+                resultsHTML += '</ul>';
+                resultsDiv.innerHTML = resultsHTML;
+            }
+            
+            hideSuggestions();
+        }
+        
+        function showSuggestions(searchTerm) {
+            if (!searchTerm || searchTerm.length < 2) {
+                hideSuggestions();
+                return;
+            }
+            
+            const suggestionsDiv = document.getElementById('searchSuggestions');
+            const filteredPatients = allPatients.filter(patient => {
+                const fullName = (patient.name || '').toLowerCase();
+                const nameParts = fullName.split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts[nameParts.length - 1] || '';
+                const patientId = (patient.id || '').toString().toLowerCase();
+                
+                return patientId.includes(searchTerm) ||
+                       firstName.includes(searchTerm) || 
+                       lastName.includes(searchTerm) || 
+                       fullName.includes(searchTerm);
+            }).slice(0, 5); // Limit to 5 suggestions
+            
+            if (filteredPatients.length === 0) {
+                hideSuggestions();
+                return;
+            }
+            
+            let suggestionsHTML = '';
+            filteredPatients.forEach(patient => {
+                suggestionsHTML += \`
+                    <div class="search-suggestion" onclick="selectSuggestion('\${patient.id}', '\${patient.name}')">
+                        <div class="suggestion-name">\${patient.name}</div>
+                        <div class="suggestion-details">ID: \${patient.id} • \${patient.type} • \${patient.time}</div>
+                    </div>
+                \`;
+            });
+            
+            suggestionsDiv.innerHTML = suggestionsHTML;
+            suggestionsDiv.style.display = 'block';
+        }
+        
+        function hideSuggestions() {
+            const suggestionsDiv = document.getElementById('searchSuggestions');
+            suggestionsDiv.style.display = 'none';
+        }
+        
+        function selectSuggestion(patientId, patientName) {
+            document.getElementById('patientSearch').value = patientName;
+            hideSuggestions();
+            // Navigate to patient details
+            window.location.href = \`/patient/\${patientId}\`;
+        }
+        
+        function clearSearch() {
+            document.getElementById('patientSearch').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            hideSuggestions();
+        }
+        
+        // Live search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('patientSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    
+                    // Clear previous timeout
+                    clearTimeout(searchTimeout);
+                    
+                    // Show suggestions immediately
+                    showSuggestions(searchTerm);
+                    
+                    // Clear search results when typing
+                    document.getElementById('searchResults').innerHTML = '';
+                });
+                
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchPatients();
+                    }
+                });
+                
+                // Hide suggestions when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-container')) {
+                        hideSuggestions();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>`;
 }
@@ -1406,29 +1591,32 @@ function generatePatientDetailsHTML(patient) {
                 }
                 
                 .copy-btn {
-                    background: transparent;
-                    color: #3CB6AD;
-                    border: none;
-                    padding: 2px 4px;
-                    border-radius: 3px;
+                    background: #f5f5f5;
+                    color: #333;
+                    border: 1px solid #d0d0d0;
+                    padding: 2px 6px;
+                    border-radius: 2px;
                     cursor: pointer;
-                    font-size: 10px;
-                    margin-left: 4px;
+                    font-size: 11px;
+                    font-family: 'Courier New', monospace;
+                    margin-left: 6px;
                     transition: all 0.2s ease;
-                    vertical-align: super;
+                    vertical-align: middle;
                     line-height: 1;
-                    opacity: 0.7;
+                    display: inline-block;
+                    min-width: 16px;
+                    text-align: center;
                 }
                 
                 .copy-btn:hover {
-                    background: #f0f0f0;
-                    opacity: 1;
-                    transform: scale(1.1);
+                    background: #e8e8e8;
+                    border-color: #999;
                 }
                 
                 .copy-btn.copied {
-                    color: #28a745;
-                    opacity: 1;
+                    background: #d4edda;
+                    color: #155724;
+                    border-color: #c3e6cb;
                 }
                 
                 .info-value {
@@ -1473,7 +1661,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Full Name:</span>
                                 <span class="info-value">
                                     ${patient.fullName || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">c</button>
+                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
                                 </span>
                             </div>
                             <div class="info-item">
@@ -1644,16 +1832,19 @@ function generatePatientDetailsHTML(patient) {
     <script>
         // Copy individual field to clipboard
         function copyToClipboard(text) {
+            const button = event.target;
+            const originalText = button.textContent;
+            
             navigator.clipboard.writeText(text).then(function() {
                 // Show success feedback
-                event.target.textContent = '✅';
-                event.target.classList.add('copied');
+                button.textContent = '✓';
+                button.classList.add('copied');
                 
-                // Reset after 2 seconds
+                // Reset after 1.5 seconds
                 setTimeout(function() {
-                    event.target.textContent = '📋';
-                    event.target.classList.remove('copied');
-                }, 2000);
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 1500);
             }).catch(function(err) {
                 console.error('Could not copy text: ', err);
                 // Fallback for older browsers
@@ -1665,13 +1856,13 @@ function generatePatientDetailsHTML(patient) {
                 document.body.removeChild(textArea);
                 
                 // Show success feedback
-                event.target.textContent = '✅';
-                event.target.classList.add('copied');
+                button.textContent = '✓';
+                button.classList.add('copied');
                 
                 setTimeout(function() {
-                    event.target.textContent = '📋';
-                    event.target.classList.remove('copied');
-                }, 2000);
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 1500);
             });
         }
         
