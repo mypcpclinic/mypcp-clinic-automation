@@ -623,6 +623,7 @@ function generateDashboardHTML(data) {
             max-height: calc(100vh - 120px);
             overflow: hidden;
         }
+        /* Force deployment refresh */
         .left-panel, .right-panel {
             display: flex;
             flex-direction: column;
