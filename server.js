@@ -1406,23 +1406,29 @@ function generatePatientDetailsHTML(patient) {
                 }
                 
                 .copy-btn {
-                    background: #3CB6AD;
-                    color: white;
+                    background: transparent;
+                    color: #3CB6AD;
                     border: none;
-                    padding: 6px 12px;
-                    border-radius: 6px;
+                    padding: 2px 4px;
+                    border-radius: 3px;
                     cursor: pointer;
-                    font-size: 12px;
-                    margin-left: 10px;
-                    transition: background 0.3s ease;
+                    font-size: 10px;
+                    margin-left: 4px;
+                    transition: all 0.2s ease;
+                    vertical-align: super;
+                    line-height: 1;
+                    opacity: 0.7;
                 }
                 
                 .copy-btn:hover {
-                    background: #2E8C83;
+                    background: #f0f0f0;
+                    opacity: 1;
+                    transform: scale(1.1);
                 }
                 
                 .copy-btn.copied {
-                    background: #28a745;
+                    color: #28a745;
+                    opacity: 1;
                 }
                 
                 .info-value {
@@ -1467,7 +1473,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Full Name:</span>
                                 <span class="info-value">
                                     ${patient.fullName || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">c</button>
                                 </span>
                             </div>
                             <div class="info-item">

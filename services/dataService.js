@@ -7,6 +7,16 @@ class DataService {
     this.data = null;
   }
 
+  generateShortId() {
+    // Generate a short, readable ID like "P001", "P002", etc.
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = 'P';
+    for (let i = 0; i < 3; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   async loadData() {
     try {
       const data = await fs.readFile(this.dataFile, 'utf8');
@@ -46,7 +56,7 @@ class DataService {
     await this.loadData();
     
     const submission = {
-      id: Date.now().toString(),
+      id: this.generateShortId(),
       timestamp: new Date().toISOString(),
       ...formData,
       status: 'pending'
@@ -66,7 +76,7 @@ class DataService {
     await this.loadData();
     
     const patient = {
-      id: Date.now().toString(),
+      id: this.generateShortId(),
       timestamp: new Date().toISOString(),
       ...patientData,
       status: 'active'
@@ -86,7 +96,7 @@ class DataService {
     await this.loadData();
     
     const appointment = {
-      id: Date.now().toString(),
+      id: this.generateShortId(),
       timestamp: new Date().toISOString(),
       ...appointmentData,
       status: 'scheduled'
