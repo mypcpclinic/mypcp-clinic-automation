@@ -61,10 +61,18 @@ app.use(requestLogger);
 // Serve static files
 app.use(express.static('public'));
 
+// Redirect /public/intake-form.html to /intake-form.html
+app.get('/public/intake-form.html', (req, res) => {
+    res.redirect('/intake-form.html');
+});
+
 // Initialize services
 const googleService = new GoogleService();
 const aiService = new AIService();
 const emailService = new EmailService();
+
+// Test mode - works without external APIs
+const TEST_MODE = process.env.NODE_ENV === 'development' && !process.env.GOOGLE_CLIENT_ID || process.env.DISABLE_GOOGLE_APIS === 'true';
 const calendlyService = new CalendlyService();
 const formspreeService = new FormspreeService();
 
@@ -78,16 +86,43 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    service: 'myPCP Clinic Automation System'
+    service: 'myPCP Clinic Automation System',
+    testMode: TEST_MODE
   });
+});
+
+// Test form submission endpoint
+app.post('/test-form', async (req, res) => {
+  try {
+    logger.info('Test form submission received', { body: req.body });
+    res.json({ 
+      success: true, 
+      message: 'Test form submitted successfully!',
+      receivedData: req.body,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Error processing test form', { error: error.message });
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // Webhook endpoints
 app.post('/webhook/formspree', validateWebhook, async (req, res) => {
   try {
     logger.info('Formspree webhook received', { body: req.body });
-    await intakeWebhook.handleFormSubmission(req.body);
-    res.json({ success: true, message: 'Intake form processed successfully' });
+    
+    if (TEST_MODE) {
+      logger.info('🧪 TEST MODE: Form submission received', { data: req.body });
+      res.json({ 
+        success: true, 
+        message: 'Form processed successfully (TEST MODE)',
+        data: req.body 
+      });
+    } else {
+      await intakeWebhook.handleFormSubmission(req.body);
+      res.json({ success: true, message: 'Intake form processed successfully' });
+    }
   } catch (error) {
     logger.error('Error processing Formspree webhook', { error: error.message, stack: error.stack });
     res.status(500).json({ success: false, error: error.message });
@@ -129,8 +164,21 @@ app.post('/trigger/weekly-report', async (req, res) => {
 // Dashboard endpoint
 app.get('/dashboard', async (req, res) => {
   try {
-    const stats = await googleService.getDashboardStats();
-    res.json(stats);
+    if (TEST_MODE) {
+      res.json({
+        success: true,
+        message: 'Dashboard (TEST MODE)',
+        stats: {
+          totalPatients: 0,
+          upcomingAppointments: 0,
+          pendingIntakes: 0,
+          lastUpdated: new Date().toISOString()
+        }
+      });
+    } else {
+      const stats = await googleService.getDashboardStats();
+      res.json(stats);
+    }
   } catch (error) {
     logger.error('Error fetching dashboard stats', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
