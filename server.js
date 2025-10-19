@@ -433,6 +433,8 @@ app.get('/patient/:id', async (req, res) => {
   }
 });
 
+// Force redeploy - patient details route
+
 // Scheduled jobs
 // Run reminder check every hour
 cron.schedule('0 * * * *', async () => {
