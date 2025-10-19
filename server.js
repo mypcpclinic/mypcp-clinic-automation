@@ -494,12 +494,17 @@ app.use('*', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`myPCP Clinic Automation System running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV}`);
-  logger.info(`Health check: http://localhost:${PORT}/health`);
-});
+// Start server (only in development or when not on Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    logger.info(`myPCP Clinic Automation System running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV}`);
+    logger.info(`Health check: http://localhost:${PORT}/health`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
 
 // HTML Generation Functions
 function generateHealthDashboard(data) {
