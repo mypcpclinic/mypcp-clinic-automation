@@ -30,6 +30,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configure Winston logger
+const transports = [
+  new winston.transports.Console({
+    format: winston.format.simple()
+  })
+];
+
+// Only add file transports in development (not in Vercel)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  try {
+    transports.push(
+      new winston.transports.File({ 
+        filename: process.env.LOG_FILE || './logs/error.log', 
+        level: 'error' 
+      }),
+      new winston.transports.File({ 
+        filename: process.env.LOG_FILE || './logs/combined.log' 
+      })
+    );
+  } catch (error) {
+    // File system not available, continue with console only
+  }
+}
+
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: winston.format.combine(
@@ -38,18 +61,7 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: 'clinic-automation' },
-  transports: [
-    new winston.transports.File({ 
-      filename: process.env.LOG_FILE || './logs/error.log', 
-      level: 'error' 
-    }),
-    new winston.transports.File({ 
-      filename: process.env.LOG_FILE || './logs/combined.log' 
-    }),
-    new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
+  transports: transports
 });
 
 // Middleware
