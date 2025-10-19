@@ -71,9 +71,9 @@ app.get('/patient-form', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
 });
 
-// Serve patient form at root for easy access
+// Redirect root to patient form
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
+    res.redirect('/patient-form');
 });
 
 // Debug route to check if server is working
