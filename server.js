@@ -313,6 +313,17 @@ app.post('/test-form', async (req, res) => {
     // Store the form submission in real data
     const submission = await dataService.addFormSubmission(req.body);
     
+    // Add to Google Sheets if not in test mode
+    if (!TEST_MODE && googleService) {
+      try {
+        await googleService.addPatientIntake(req.body);
+        logger.info('Patient data added to Google Sheets successfully');
+      } catch (sheetsError) {
+        logger.error('Error adding to Google Sheets:', sheetsError);
+        // Don't fail the request if Google Sheets fails
+      }
+    }
+    
     res.json({ 
       success: true, 
       message: 'Form submitted successfully!',
