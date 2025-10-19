@@ -133,13 +133,75 @@
             font-weight: 700;
         }
         .success-message {
-            background: linear-gradient(135deg, #D4EDDA 0%, #C3E6CB 100%);
-            color: #155724;
+            display: none;
+            background: linear-gradient(135deg, #3CB6AD, #2E8C83);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(46, 140, 131, 0.2);
+            margin-top: 20px;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .success-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .success-details {
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 25px;
-            display: none;
-            border-left: 5px solid #28A745;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .success-details h4 {
+            margin: 0 0 10px 0;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .success-details p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+        
+        .success-actions {
+            margin-top: 30px;
+        }
+        
+        .success-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .success-btn:hover {
+            background: white;
+            color: #3CB6AD;
+            transform: translateY(-2px);
         }
         .error-message {
             background: linear-gradient(135deg, #F8D7DA 0%, #F5C6CB 100%);
@@ -266,6 +328,32 @@
 
         <button type="submit" class="submit-btn">📋 Submit Intake Form</button>
     </form>
+    
+    <!-- Loading Message -->
+    <div class="loading" id="loadingMessage">
+        <div class="spinner"></div>
+        <p>Submitting your form...</p>
+    </div>
+    
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        <span class="success-icon">✅</span>
+        <div class="success-title">Form Submitted Successfully!</div>
+        <div class="success-text">Thank you for completing your patient intake form. We have received your information and will prepare for your visit.</div>
+        
+        <div class="success-details">
+            <h4>📋 What happens next?</h4>
+            <p>• Your information has been securely stored in our system</p>
+            <p>• You will receive a confirmation email shortly</p>
+            <p>• Our team will review your information before your appointment</p>
+            <p>• If we need any additional information, we'll contact you</p>
+        </div>
+        
+        <div class="success-actions">
+            <a href="/dashboard" class="success-btn">View Dashboard</a>
+            <a href="/patient-form" class="success-btn">Submit Another Form</a>
+        </div>
+    </div>
     
     <div class="form-footer">
         <p><strong>myPCP Internal Medicine Clinic</strong></p>

@@ -136,7 +136,8 @@ class DataService {
         name: submission.fullName,
         time: this.getTimeAgo(submission.timestamp),
         status: submission.status,
-        timestamp: submission.timestamp
+        timestamp: submission.timestamp,
+        id: submission.id
       });
     });
     
@@ -147,7 +148,8 @@ class DataService {
         name: patient.fullName,
         time: this.getTimeAgo(patient.timestamp),
         status: 'completed',
-        timestamp: patient.timestamp
+        timestamp: patient.timestamp,
+        id: patient.id
       });
     });
     
@@ -230,6 +232,30 @@ class DataService {
       minute: '2-digit',
       hour12: true 
     });
+  }
+
+  async getPatientById(patientId) {
+    await this.loadData();
+    
+    // First check form submissions
+    const formSubmission = this.data.formSubmissions.find(sub => sub.id === patientId);
+    if (formSubmission) {
+      return {
+        ...formSubmission,
+        type: 'form_submission'
+      };
+    }
+    
+    // Then check patients
+    const patient = this.data.patients.find(pat => pat.id === patientId);
+    if (patient) {
+      return {
+        ...patient,
+        type: 'patient'
+      };
+    }
+    
+    return null;
   }
 }
 

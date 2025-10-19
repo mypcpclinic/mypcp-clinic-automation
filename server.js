@@ -226,8 +226,8 @@ try {
 }
 
 // Test mode - works without external APIs
-// Enable test mode if Google APIs are disabled or credentials are missing
-const TEST_MODE = process.env.DISABLE_GOOGLE_APIS === 'true' || (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY);
+// Enable test mode ONLY if Google APIs are explicitly disabled
+const TEST_MODE = process.env.DISABLE_GOOGLE_APIS === 'true';
 let calendlyService, formspreeService;
 try {
   calendlyService = new CalendlyService();
@@ -407,6 +407,29 @@ app.get('/dashboard', async (req, res) => {
   } catch (error) {
     logger.error('Error fetching dashboard stats', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get individual patient details
+app.get('/patient/:id', async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const patient = await dataService.getPatientById(patientId);
+    
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+    
+    // Check if client wants HTML
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      const html = generatePatientDetailsHTML(patient);
+      res.send(html);
+    } else {
+      res.json(patient);
+    }
+  } catch (error) {
+    logger.error('Patient details error:', error);
+    res.status(500).json({ error: 'Failed to load patient details' });
   }
 });
 
@@ -1023,7 +1046,7 @@ function generateDashboardHTML(data) {
                                 ${data.recentActivity.map(activity => `
                                     <tr>
                                         <td>${activity.type}</td>
-                                        <td>${activity.name}</td>
+                                        <td><a href="/patient/${activity.id || 'unknown'}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">${activity.name}</a></td>
                                         <td>${activity.time}</td>
                                         <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
                                     </tr>
@@ -1125,6 +1148,296 @@ function generateDashboardHTML(data) {
                 <a href="/" style="color: #3CB6AD; text-decoration: none;">Patient Form</a> | 
                 <a href="/health" style="color: #3CB6AD; text-decoration: none;">System Health</a>
             </p>
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+function generatePatientDetailsHTML(patient) {
+  const isFormSubmission = patient.type === 'form_submission';
+  const title = isFormSubmission ? 'Patient Intake Form Details' : 'Patient Details';
+  
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} - myPCP Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #3CB6AD, #2E8C83);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3CB6AD, #2E8C83);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3CB6AD;
+        }
+        
+        .info-section h3 {
+            color: #2E8C83;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .info-value {
+            color: #212529;
+            text-align: right;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            background: #3CB6AD;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2E8C83;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${title}</h1>
+            <p>Patient ID: ${patient.id}</p>
+        </div>
+        
+        <div class="content">
+            <div class="patient-info">
+                <div class="info-section">
+                    <h3>👤 Personal Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">${patient.fullName || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date of Birth:</span>
+                        <span class="info-value">${patient.dateOfBirth || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Gender:</span>
+                        <span class="info-value">${patient.gender || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">${patient.phone || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${patient.email || 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🏠 Address & Contact</h3>
+                    <div class="info-item">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">${patient.address || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">City:</span>
+                        <span class="info-value">${patient.city || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">State:</span>
+                        <span class="info-value">${patient.state || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ZIP Code:</span>
+                        <span class="info-value">${patient.zipCode || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Emergency Contact:</span>
+                        <span class="info-value">${patient.emergencyContact || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="patient-info">
+                <div class="info-section">
+                    <h3>🏥 Medical Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Insurance Provider:</span>
+                        <span class="info-value">${patient.insuranceProvider || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Policy Number:</span>
+                        <span class="info-value">${patient.policyNumber || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Primary Care Physician:</span>
+                        <span class="info-value">${patient.primaryCarePhysician || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Current Medications:</span>
+                        <span class="info-value">${patient.currentMedications || 'None'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Allergies:</span>
+                        <span class="info-value">${patient.allergies || 'None'}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>📋 Form Details</h3>
+                    <div class="info-item">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge status-${patient.status}">${patient.status}</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Submitted:</span>
+                        <span class="info-value">${new Date(patient.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value">${isFormSubmission ? 'Intake Form' : 'Patient Record'}</span>
+                    </div>
+                    ${patient.reasonForVisit ? `
+                    <div class="info-item">
+                        <span class="info-label">Reason for Visit:</span>
+                        <span class="info-value">${patient.reasonForVisit}</span>
+                    </div>
+                    ` : ''}
+                    ${patient.medicalHistory ? `
+                    <div class="info-item">
+                        <span class="info-label">Medical History:</span>
+                        <span class="info-value">${patient.medicalHistory}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="actions">
+                <a href="/dashboard" class="btn">← Back to Dashboard</a>
+                <a href="/patient-form" class="btn btn-secondary">Submit New Form</a>
+            </div>
+            
+            <div class="timestamp">
+                Last updated: ${new Date(patient.timestamp).toLocaleString()}
+            </div>
         </div>
     </div>
 </body>
