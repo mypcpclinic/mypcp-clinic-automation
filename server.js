@@ -1171,7 +1171,7 @@ function generateDashboardHTML(data) {
                 
                 <!-- Recent Activity -->
                 <div class="section">
-                    <h3>${copyIcon} Recent Activity</h3>
+                    <h3>📋 Recent Activity</h3>
                     <div class="table-container">
                         ${data.recentActivity.length > 0 ? `
                         <table class="table">
@@ -1805,7 +1805,7 @@ function generatePatientDetailsHTML(patient) {
                 </div>
                 
                 <div class="info-section">
-                    <h3>${copyIcon} Form Details</h3>
+                    <h3>📋 Form Details</h3>
                             <div class="info-item">
                                 <span class="info-label">Status:</span>
                                 <span class="info-value">
