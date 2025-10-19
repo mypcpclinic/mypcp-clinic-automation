@@ -227,7 +227,7 @@ try {
 
 // Test mode - works without external APIs
 // Enable test mode if Google APIs are disabled or credentials are missing
-const TEST_MODE = process.env.DISABLE_GOOGLE_APIS === 'true' || !process.env.GOOGLE_CLIENT_ID;
+const TEST_MODE = process.env.DISABLE_GOOGLE_APIS === 'true' || (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY);
 let calendlyService, formspreeService;
 try {
   calendlyService = new CalendlyService();
