@@ -792,7 +792,73 @@ function generateDashboardHTML(data) {
             max-height: calc(100vh - 120px);
             overflow: hidden;
         }
-        /* Force deployment refresh - v2 */
+        /* Force deployment refresh - v3 */
+        .search-section {
+            background: white;
+            padding: 20px;
+            margin: 0 20px 20px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3CB6AD;
+        }
+        
+        .search-btn {
+            background: #3CB6AD;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            background: #2E8C83;
+        }
+        
+        .clear-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .clear-btn:hover {
+            background: #545b62;
+        }
+        
+        .search-results {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
         .left-panel, .right-panel {
             display: flex;
             flex-direction: column;
@@ -1009,6 +1075,16 @@ function generateDashboardHTML(data) {
                     <p>Real-time Analytics</p>
                 </div>
             </div>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="patientSearch" class="search-input" placeholder="Search patients by name, last name, or date of birth...">
+                <button onclick="searchPatients()" class="search-btn">🔍 Search</button>
+                <button onclick="clearSearch()" class="clear-btn">Clear</button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
         </div>
         
         <div class="content">
@@ -1322,125 +1398,229 @@ function generatePatientDetailsHTML(patient) {
             background: #545b62;
         }
         
-        .timestamp {
-            text-align: center;
-            color: #6c757d;
-            font-size: 14px;
-            margin-top: 20px;
-        }
+                .timestamp {
+                    text-align: center;
+                    color: #6c757d;
+                    font-size: 14px;
+                    margin-top: 20px;
+                }
+                
+                .copy-btn {
+                    background: #3CB6AD;
+                    color: white;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    margin-left: 10px;
+                    transition: background 0.3s ease;
+                }
+                
+                .copy-btn:hover {
+                    background: #2E8C83;
+                }
+                
+                .copy-btn.copied {
+                    background: #28a745;
+                }
+                
+                .info-value {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                
+                .copy-all-btn {
+                    background: #3CB6AD;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 500;
+                    margin: 20px 0;
+                    transition: background 0.3s ease;
+                }
+                
+                .copy-all-btn:hover {
+                    background: #2E8C83;
+                }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>${title}</h1>
-            <p>Patient ID: ${patient.id}</p>
-        </div>
-        
-        <div class="content">
+                <div class="header">
+                    <h1>${title}</h1>
+                    <p>Patient ID: ${patient.id}</p>
+                </div>
+                
+                <div class="content">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <button onclick="copyAllPatientInfo()" class="copy-all-btn">📋 Copy All Patient Information</button>
+                    </div>
             <div class="patient-info">
                 <div class="info-section">
                     <h3>👤 Personal Information</h3>
-                    <div class="info-item">
-                        <span class="info-label">Full Name:</span>
-                        <span class="info-value">${patient.fullName || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Date of Birth:</span>
-                        <span class="info-value">${patient.dateOfBirth || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Gender:</span>
-                        <span class="info-value">${patient.gender || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Phone:</span>
-                        <span class="info-value">${patient.phone || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value">${patient.email || 'N/A'}</span>
-                    </div>
+                            <div class="info-item">
+                                <span class="info-label">Full Name:</span>
+                                <span class="info-value">
+                                    ${patient.fullName || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Date of Birth:</span>
+                                <span class="info-value">
+                                    ${patient.dateOfBirth || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.dateOfBirth || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Gender:</span>
+                                <span class="info-value">
+                                    ${patient.gender || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.gender || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Phone:</span>
+                                <span class="info-value">
+                                    ${patient.phone || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.phone || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value">
+                                    ${patient.email || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.email || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
                 </div>
                 
                 <div class="info-section">
                     <h3>🏠 Address & Contact</h3>
-                    <div class="info-item">
-                        <span class="info-label">Address:</span>
-                        <span class="info-value">${patient.address || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">City:</span>
-                        <span class="info-value">${patient.city || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">State:</span>
-                        <span class="info-value">${patient.state || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">ZIP Code:</span>
-                        <span class="info-value">${patient.zipCode || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Emergency Contact:</span>
-                        <span class="info-value">${patient.emergencyContact || 'N/A'}</span>
-                    </div>
+                            <div class="info-item">
+                                <span class="info-label">Address:</span>
+                                <span class="info-value">
+                                    ${patient.address || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.address || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">City:</span>
+                                <span class="info-value">
+                                    ${patient.city || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.city || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">State:</span>
+                                <span class="info-value">
+                                    ${patient.state || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.state || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ZIP Code:</span>
+                                <span class="info-value">
+                                    ${patient.zipCode || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.zipCode || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Emergency Contact:</span>
+                                <span class="info-value">
+                                    ${patient.emergencyContact || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.emergencyContact || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
                 </div>
             </div>
             
             <div class="patient-info">
                 <div class="info-section">
                     <h3>🏥 Medical Information</h3>
-                    <div class="info-item">
-                        <span class="info-label">Insurance Provider:</span>
-                        <span class="info-value">${patient.insuranceProvider || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Policy Number:</span>
-                        <span class="info-value">${patient.policyNumber || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Primary Care Physician:</span>
-                        <span class="info-value">${patient.primaryCarePhysician || 'N/A'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Current Medications:</span>
-                        <span class="info-value">${patient.currentMedications || 'None'}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Allergies:</span>
-                        <span class="info-value">${patient.allergies || 'None'}</span>
-                    </div>
+                            <div class="info-item">
+                                <span class="info-label">Insurance Provider:</span>
+                                <span class="info-value">
+                                    ${patient.insuranceProvider || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.insuranceProvider || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Policy Number:</span>
+                                <span class="info-value">
+                                    ${patient.policyNumber || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.policyNumber || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Primary Care Physician:</span>
+                                <span class="info-value">
+                                    ${patient.primaryCarePhysician || 'N/A'}
+                                    <button onclick="copyToClipboard('${(patient.primaryCarePhysician || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Current Medications:</span>
+                                <span class="info-value">
+                                    ${patient.currentMedications || 'None'}
+                                    <button onclick="copyToClipboard('${(patient.currentMedications || 'None').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Allergies:</span>
+                                <span class="info-value">
+                                    ${patient.allergies || 'None'}
+                                    <button onclick="copyToClipboard('${(patient.allergies || 'None').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
                 </div>
                 
                 <div class="info-section">
                     <h3>📋 Form Details</h3>
-                    <div class="info-item">
-                        <span class="info-label">Status:</span>
-                        <span class="info-value">
-                            <span class="status-badge status-${patient.status}">${patient.status}</span>
-                        </span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Submitted:</span>
-                        <span class="info-value">${new Date(patient.timestamp).toLocaleString()}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Type:</span>
-                        <span class="info-value">${isFormSubmission ? 'Intake Form' : 'Patient Record'}</span>
-                    </div>
-                    ${patient.reasonForVisit ? `
-                    <div class="info-item">
-                        <span class="info-label">Reason for Visit:</span>
-                        <span class="info-value">${patient.reasonForVisit}</span>
-                    </div>
-                    ` : ''}
-                    ${patient.medicalHistory ? `
-                    <div class="info-item">
-                        <span class="info-label">Medical History:</span>
-                        <span class="info-value">${patient.medicalHistory}</span>
-                    </div>
-                    ` : ''}
+                            <div class="info-item">
+                                <span class="info-label">Status:</span>
+                                <span class="info-value">
+                                    <span class="status-badge status-${patient.status}">${patient.status}</span>
+                                    <button onclick="copyToClipboard('${patient.status}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Submitted:</span>
+                                <span class="info-value">
+                                    ${new Date(patient.timestamp).toLocaleString()}
+                                    <button onclick="copyToClipboard('${new Date(patient.timestamp).toLocaleString()}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Type:</span>
+                                <span class="info-value">
+                                    ${isFormSubmission ? 'Intake Form' : 'Patient Record'}
+                                    <button onclick="copyToClipboard('${isFormSubmission ? 'Intake Form' : 'Patient Record'}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            ${patient.reasonForVisit ? `
+                            <div class="info-item">
+                                <span class="info-label">Reason for Visit:</span>
+                                <span class="info-value">
+                                    ${patient.reasonForVisit}
+                                    <button onclick="copyToClipboard('${patient.reasonForVisit.replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            ` : ''}
+                            ${patient.medicalHistory ? `
+                            <div class="info-item">
+                                <span class="info-label">Medical History:</span>
+                                <span class="info-value">
+                                    ${patient.medicalHistory}
+                                    <button onclick="copyToClipboard('${patient.medicalHistory.replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                </span>
+                            </div>
+                            ` : ''}
                 </div>
             </div>
             
@@ -1454,6 +1634,108 @@ function generatePatientDetailsHTML(patient) {
             </div>
         </div>
     </div>
+    
+    <script>
+        // Copy individual field to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success feedback
+                event.target.textContent = '✅';
+                event.target.classList.add('copied');
+                
+                // Reset after 2 seconds
+                setTimeout(function() {
+                    event.target.textContent = '📋';
+                    event.target.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Show success feedback
+                event.target.textContent = '✅';
+                event.target.classList.add('copied');
+                
+                setTimeout(function() {
+                    event.target.textContent = '📋';
+                    event.target.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        // Copy all patient information
+        function copyAllPatientInfo() {
+            const patientData = {
+                'Patient ID': '${patient.id}',
+                'Full Name': '${patient.fullName || 'N/A'}',
+                'Date of Birth': '${patient.dateOfBirth || 'N/A'}',
+                'Gender': '${patient.gender || 'N/A'}',
+                'Phone': '${patient.phone || 'N/A'}',
+                'Email': '${patient.email || 'N/A'}',
+                'Address': '${patient.address || 'N/A'}',
+                'City': '${patient.city || 'N/A'}',
+                'State': '${patient.state || 'N/A'}',
+                'ZIP Code': '${patient.zipCode || 'N/A'}',
+                'Emergency Contact': '${patient.emergencyContact || 'N/A'}',
+                'Insurance Provider': '${patient.insuranceProvider || 'N/A'}',
+                'Policy Number': '${patient.policyNumber || 'N/A'}',
+                'Primary Care Physician': '${patient.primaryCarePhysician || 'N/A'}',
+                'Current Medications': '${patient.currentMedications || 'None'}',
+                'Allergies': '${patient.allergies || 'None'}',
+                'Reason for Visit': '${patient.reasonForVisit || 'N/A'}',
+                'Medical History': '${patient.medicalHistory || 'N/A'}',
+                'Status': '${patient.status}',
+                'Submitted': '${new Date(patient.timestamp).toLocaleString()}'
+            };
+            
+            let formattedText = 'PATIENT INFORMATION\\n';
+            formattedText += '========================\\n\\n';
+            
+            for (const [key, value] of Object.entries(patientData)) {
+                formattedText += \`\${key}: \${value}\\n\`;
+            }
+            
+            navigator.clipboard.writeText(formattedText).then(function() {
+                // Show success feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#28a745';
+                
+                // Reset after 3 seconds
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#3CB6AD';
+                }, 3000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = formattedText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Show success feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#3CB6AD';
+                }, 3000);
+            });
+        }
+    </script>
 </body>
 </html>`;
 }
