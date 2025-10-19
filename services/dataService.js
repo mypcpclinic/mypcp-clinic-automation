@@ -61,12 +61,38 @@ class DataService {
 
     this.data.formSubmissions.unshift(submission);
     
+    // Track daily patients
+    this.trackDailyPatient(submission);
+    
     // Update stats
     this.data.stats.pendingIntakes = this.data.formSubmissions.filter(s => s.status === 'pending').length;
     this.data.stats.totalPatients = this.data.patients.length;
     
     await this.saveData();
     return submission;
+  }
+
+  trackDailyPatient(patient) {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    // Initialize daily tracking if it doesn't exist
+    if (!this.data.dailyPatients) {
+      this.data.dailyPatients = {};
+    }
+    
+    // Initialize today's array if it doesn't exist
+    if (!this.data.dailyPatients[today]) {
+      this.data.dailyPatients[today] = [];
+    }
+    
+    // Add patient to today's list
+    this.data.dailyPatients[today].push({
+      id: patient.id,
+      name: patient.fullName,
+      timestamp: patient.timestamp,
+      status: patient.status,
+      ...patient
+    });
   }
 
   async addPatient(patientData) {
@@ -164,6 +190,45 @@ class DataService {
     return activities
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       .slice(0, limit);
+  }
+
+  getDailyPatients(date = null) {
+    if (!this.data || !this.data.dailyPatients) return [];
+    
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    return this.data.dailyPatients[targetDate] || [];
+  }
+
+  getDailyPatientCount(date = null) {
+    return this.getDailyPatients(date).length;
+  }
+
+  getDailyPatientHistory(days = 7) {
+    if (!this.data || !this.data.dailyPatients) return [];
+    
+    const history = [];
+    const today = new Date();
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const patients = this.getDailyPatients(dateStr);
+      history.push({
+        date: dateStr,
+        dateFormatted: date.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }),
+        count: patients.length,
+        patients: patients
+      });
+    }
+    
+    return history.reverse(); // Show oldest to newest
   }
 
   getTimeAgo(timestamp) {

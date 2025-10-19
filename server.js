@@ -405,6 +405,11 @@ app.get('/dashboard', async (req, res) => {
     // Always use real data service for dashboard
     const stats = await dataService.getDashboardStats();
     
+    // Add daily patient data
+    stats.todayPatients = dataService.getDailyPatients();
+    stats.dailyHistory = dataService.getDailyPatientHistory(7);
+    stats.todayPatientCount = dataService.getDailyPatientCount();
+    
     // Add test mode indicator if in test mode
     if (TEST_MODE) {
       stats.message = 'Dashboard (Real Data - Test Mode)';
@@ -793,125 +798,66 @@ function generateDashboardHTML(data) {
             overflow: hidden;
         }
         /* Force deployment refresh - v3 */
-        .search-section {
-            background: white;
-            padding: 20px;
-            margin: 0 20px 20px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
         
-        .search-bar {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
         
-        .search-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #3CB6AD;
-        }
-        
-        .search-btn {
-            background: #3CB6AD;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-        
-        .search-btn:hover {
-            background: #2E8C83;
-        }
-        
-        .clear-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-        
-        .clear-btn:hover {
-            background: #545b62;
-        }
-        
-        .search-results {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #6c757d;
-        }
-        
-        .search-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .search-suggestion {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f8f9fa;
-            transition: background 0.2s ease;
-        }
-        
-        .search-suggestion:hover {
-            background: #f8f9fa;
-        }
-        
-        .search-suggestion:last-child {
-            border-bottom: none;
-        }
-        
-        .suggestion-name {
-            font-weight: 500;
-            color: #1E1E1E;
-        }
-        
-        .suggestion-details {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 2px;
-        }
-        
-        .search-container {
-            position: relative;
-            flex: 1;
-            min-width: 200px;
-        }
         
         .left-panel, .right-panel {
             display: flex;
             flex-direction: column;
             gap: 15px;
             height: 100%;
+        }
+        
+        .history-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-day {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3CB6AD;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .history-date {
+            color: #1E1E1E;
+            font-size: 14px;
+        }
+        
+        .history-count {
+            background: #3CB6AD;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .history-patients {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .history-patient {
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        
+        .history-empty {
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
         }
         .stats-grid {
             display: grid;
@@ -1125,18 +1071,6 @@ function generateDashboardHTML(data) {
             </div>
         </div>
         
-        <!-- Search Section -->
-        <div class="search-section">
-            <div class="search-bar">
-                <div class="search-container">
-                    <input type="text" id="patientSearch" class="search-input" placeholder="Search patients by ID, name, last name, or date of birth...">
-                    <div id="searchSuggestions" class="search-suggestions"></div>
-                </div>
-                <button onclick="searchPatients()" class="search-btn">🔍 Search</button>
-                <button onclick="clearSearch()" class="clear-btn">Clear</button>
-            </div>
-            <div id="searchResults" class="search-results"></div>
-        </div>
         
         <div class="content">
             <!-- Left Panel -->
@@ -1148,8 +1082,8 @@ function generateDashboardHTML(data) {
                         <div class="stat-label">Total Patients</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">${data.stats.newPatientsThisMonth}</div>
-                        <div class="stat-label">New This Month</div>
+                        <div class="stat-number">${data.todayPatientCount || 0}</div>
+                        <div class="stat-label">Today's Patients</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">${data.stats.upcomingAppointments}</div>
@@ -1169,34 +1103,34 @@ function generateDashboardHTML(data) {
                     </div>
                 </div>
                 
-                <!-- Recent Activity -->
+                <!-- Today's Patients -->
                 <div class="section">
-                    <h3>📋 Recent Activity</h3>
+                    <h3>📅 Today's Patients (${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })})</h3>
                     <div class="table-container">
-                        ${data.recentActivity.length > 0 ? `
+                        ${data.todayPatients && data.todayPatients.length > 0 ? `
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Patient</th>
+                                    <th>ID</th>
+                                    <th>Patient Name</th>
                                     <th>Time</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.recentActivity.map(activity => `
+                                ${data.todayPatients.map(patient => `
                                     <tr>
-                                        <td>${activity.type}</td>
-                                        <td><a href="/patient/${activity.id || 'unknown'}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">${activity.name}</a></td>
-                                        <td>${activity.time}</td>
-                                        <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
+                                        <td>${patient.id}</td>
+                                        <td><a href="/patient/${patient.id}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">${patient.name}</a></td>
+                                        <td>${new Date(patient.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                                        <td><span class="status-badge status-${patient.status}">${patient.status}</span></td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                         </table>
                         ` : `
                         <div class="empty-state">
-                            No recent activity
+                            No patients today yet
                         </div>
                         `}
                     </div>
@@ -1205,11 +1139,37 @@ function generateDashboardHTML(data) {
             
             <!-- Right Panel -->
             <div class="right-panel">
-                <!-- Charts Section -->
-                <div class="chart-container">
-                    <h3>📈 Activity Trends</h3>
-                    <div class="chart-placeholder">
-                        📊 Charts with Google Sheets
+                <!-- Historical Records -->
+                <div class="section">
+                    <h3>📊 7-Day Patient History</h3>
+                    <div class="history-container">
+                        ${data.dailyHistory && data.dailyHistory.length > 0 ? `
+                            ${data.dailyHistory.map(day => `
+                                <div class="history-day">
+                                    <div class="history-header">
+                                        <span class="history-date">${day.dateFormatted}</span>
+                                        <span class="history-count">${day.count} patients</span>
+                                    </div>
+                                    ${day.patients.length > 0 ? `
+                                        <div class="history-patients">
+                                            ${day.patients.map(patient => `
+                                                <div class="history-patient">
+                                                    <a href="/patient/${patient.id}" style="color: #3CB6AD; text-decoration: none;">
+                                                        ${patient.name} (ID: ${patient.id})
+                                                    </a>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : `
+                                        <div class="history-empty">No patients</div>
+                                    `}
+                                </div>
+                            `).join('')}
+                        ` : `
+                            <div class="empty-state">
+                                No historical data available
+                            </div>
+                        `}
                     </div>
                 </div>
                 
@@ -1292,139 +1252,6 @@ function generateDashboardHTML(data) {
         </div>
     </div>
     
-    <script>
-        // Patient search functionality
-        let allPatients = ${JSON.stringify(data.recentActivity)};
-        let searchTimeout;
-        
-        function searchPatients() {
-            const searchTerm = document.getElementById('patientSearch').value.toLowerCase().trim();
-            const resultsDiv = document.getElementById('searchResults');
-            
-            if (!searchTerm) {
-                resultsDiv.innerHTML = '';
-                hideSuggestions();
-                return;
-            }
-            
-            // Search through patients
-            const filteredPatients = allPatients.filter(patient => {
-                const fullName = (patient.name || '').toLowerCase();
-                const nameParts = fullName.split(' ');
-                const firstName = nameParts[0] || '';
-                const lastName = nameParts[nameParts.length - 1] || '';
-                const patientId = (patient.id || '').toString().toLowerCase();
-                
-                // Check if search term matches ID, first name, last name, or full name
-                return patientId.includes(searchTerm) ||
-                       firstName.includes(searchTerm) || 
-                       lastName.includes(searchTerm) || 
-                       fullName.includes(searchTerm);
-            });
-            
-            if (filteredPatients.length === 0) {
-                resultsDiv.innerHTML = '<p>No patients found matching your search.</p>';
-            } else {
-                let resultsHTML = '<h4>Search Results (' + filteredPatients.length + ' found):</h4><ul>';
-                filteredPatients.forEach(patient => {
-                    resultsHTML += \`<li><a href="/patient/\${patient.id || 'unknown'}" style="color: #3CB6AD; text-decoration: none;">\${patient.name}</a> - \${patient.type} (\${patient.time})</li>\`;
-                });
-                resultsHTML += '</ul>';
-                resultsDiv.innerHTML = resultsHTML;
-            }
-            
-            hideSuggestions();
-        }
-        
-        function showSuggestions(searchTerm) {
-            if (!searchTerm || searchTerm.length < 2) {
-                hideSuggestions();
-                return;
-            }
-            
-            const suggestionsDiv = document.getElementById('searchSuggestions');
-            const filteredPatients = allPatients.filter(patient => {
-                const fullName = (patient.name || '').toLowerCase();
-                const nameParts = fullName.split(' ');
-                const firstName = nameParts[0] || '';
-                const lastName = nameParts[nameParts.length - 1] || '';
-                const patientId = (patient.id || '').toString().toLowerCase();
-                
-                return patientId.includes(searchTerm) ||
-                       firstName.includes(searchTerm) || 
-                       lastName.includes(searchTerm) || 
-                       fullName.includes(searchTerm);
-            }).slice(0, 5); // Limit to 5 suggestions
-            
-            if (filteredPatients.length === 0) {
-                hideSuggestions();
-                return;
-            }
-            
-            let suggestionsHTML = '';
-            filteredPatients.forEach(patient => {
-                suggestionsHTML += \`
-                    <div class="search-suggestion" onclick="selectSuggestion('\${patient.id}', '\${patient.name}')">
-                        <div class="suggestion-name">\${patient.name}</div>
-                        <div class="suggestion-details">ID: \${patient.id} • \${patient.type} • \${patient.time}</div>
-                    </div>
-                \`;
-            });
-            
-            suggestionsDiv.innerHTML = suggestionsHTML;
-            suggestionsDiv.style.display = 'block';
-        }
-        
-        function hideSuggestions() {
-            const suggestionsDiv = document.getElementById('searchSuggestions');
-            suggestionsDiv.style.display = 'none';
-        }
-        
-        function selectSuggestion(patientId, patientName) {
-            document.getElementById('patientSearch').value = patientName;
-            hideSuggestions();
-            // Navigate to patient details
-            window.location.href = \`/patient/\${patientId}\`;
-        }
-        
-        function clearSearch() {
-            document.getElementById('patientSearch').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            hideSuggestions();
-        }
-        
-        // Live search functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('patientSearch');
-            if (searchInput) {
-                searchInput.addEventListener('input', function(e) {
-                    const searchTerm = e.target.value.toLowerCase().trim();
-                    
-                    // Clear previous timeout
-                    clearTimeout(searchTimeout);
-                    
-                    // Show suggestions immediately
-                    showSuggestions(searchTerm);
-                    
-                    // Clear search results when typing
-                    document.getElementById('searchResults').innerHTML = '';
-                });
-                
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchPatients();
-                    }
-                });
-                
-                // Hide suggestions when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.search-container')) {
-                        hideSuggestions();
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>`;
 }
