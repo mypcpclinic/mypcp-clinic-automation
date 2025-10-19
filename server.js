@@ -66,13 +66,23 @@ app.get('/public/intake-form.html', (req, res) => {
     res.redirect('/intake-form.html');
 });
 
+// Serve patient form directly
+app.get('/patient-form', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
+});
+
+// Serve patient form at root for easy access
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
+});
+
 // Initialize services
 const googleService = new GoogleService();
 const aiService = new AIService();
 const emailService = new EmailService();
 
 // Test mode - works without external APIs
-const TEST_MODE = process.env.NODE_ENV === 'development' && !process.env.GOOGLE_CLIENT_ID || process.env.DISABLE_GOOGLE_APIS === 'true';
+const TEST_MODE = process.env.NODE_ENV === 'development' && !process.env.GOOGLE_CLIENT_ID || process.env.DISABLE_GOOGLE_APIS === 'true' || !process.env.GOOGLE_CLIENT_ID;
 const calendlyService = new CalendlyService();
 const formspreeService = new FormspreeService();
 
