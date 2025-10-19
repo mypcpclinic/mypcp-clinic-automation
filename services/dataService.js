@@ -244,8 +244,11 @@ class DataService {
   async getPatientById(patientId) {
     await this.loadData();
     
+    // Convert patientId to number for comparison since IDs are stored as numbers
+    const numericId = parseInt(patientId);
+    
     // First check form submissions
-    const formSubmission = this.data.formSubmissions.find(sub => sub.id === patientId);
+    const formSubmission = this.data.formSubmissions.find(sub => sub.id === numericId);
     if (formSubmission) {
       return {
         ...formSubmission,
@@ -254,7 +257,7 @@ class DataService {
     }
     
     // Then check patients
-    const patient = this.data.patients.find(pat => pat.id === patientId);
+    const patient = this.data.patients.find(pat => pat.id === numericId);
     if (patient) {
       return {
         ...patient,
