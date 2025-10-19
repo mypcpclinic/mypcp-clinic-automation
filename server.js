@@ -1438,6 +1438,25 @@ function generatePatientDetailsHTML(patient) {
     <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
   </svg>`;
   
+  // Escape patient data for safe HTML insertion
+  const safeFullName = (patient.fullName || 'N/A').replace(/'/g, "\\'");
+  const safeDateOfBirth = (patient.dateOfBirth || 'N/A').replace(/'/g, "\\'");
+  const safeGender = (patient.gender || 'N/A').replace(/'/g, "\\'");
+  const safePhone = (patient.phone || 'N/A').replace(/'/g, "\\'");
+  const safeEmail = (patient.email || 'N/A').replace(/'/g, "\\'");
+  const safeAddress = (patient.address || 'N/A').replace(/'/g, "\\'");
+  const safeCity = (patient.city || 'N/A').replace(/'/g, "\\'");
+  const safeState = (patient.state || 'N/A').replace(/'/g, "\\'");
+  const safeZipCode = (patient.zipCode || 'N/A').replace(/'/g, "\\'");
+  const safeEmergencyContact = (patient.emergencyContact || 'N/A').replace(/'/g, "\\'");
+  const safeInsuranceProvider = (patient.insuranceProvider || 'N/A').replace(/'/g, "\\'");
+  const safePolicyNumber = (patient.policyNumber || 'N/A').replace(/'/g, "\\'");
+  const safePrimaryCarePhysician = (patient.primaryCarePhysician || 'N/A').replace(/'/g, "\\'");
+  const safeCurrentMedications = (patient.currentMedications || 'None').replace(/'/g, "\\'");
+  const safeAllergies = (patient.allergies || 'None').replace(/'/g, "\\'");
+  const safeReasonForVisit = (patient.reasonForVisit || 'N/A').replace(/'/g, "\\'");
+  const safeMedicalHistory = (patient.medicalHistory || 'N/A').replace(/'/g, "\\'");
+  
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -1691,35 +1710,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Full Name:</span>
                                 <span class="info-value">
                                     ${patient.fullName || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeFullName}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Date of Birth:</span>
                                 <span class="info-value">
                                     ${patient.dateOfBirth || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.dateOfBirth || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeDateOfBirth}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Gender:</span>
                                 <span class="info-value">
                                     ${patient.gender || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.gender || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeGender}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Phone:</span>
                                 <span class="info-value">
                                     ${patient.phone || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.phone || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePhone}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Email:</span>
                                 <span class="info-value">
                                     ${patient.email || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.email || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeEmail}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1730,35 +1749,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Address:</span>
                                 <span class="info-value">
                                     ${patient.address || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.address || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeAddress}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">City:</span>
                                 <span class="info-value">
                                     ${patient.city || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.city || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeCity}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">State:</span>
                                 <span class="info-value">
                                     ${patient.state || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.state || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeState}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">ZIP Code:</span>
                                 <span class="info-value">
                                     ${patient.zipCode || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.zipCode || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeZipCode}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Emergency Contact:</span>
                                 <span class="info-value">
                                     ${patient.emergencyContact || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.emergencyContact || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeEmergencyContact}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1771,35 +1790,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Insurance Provider:</span>
                                 <span class="info-value">
                                     ${patient.insuranceProvider || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.insuranceProvider || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeInsuranceProvider}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Policy Number:</span>
                                 <span class="info-value">
                                     ${patient.policyNumber || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.policyNumber || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePolicyNumber}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Primary Care Physician:</span>
                                 <span class="info-value">
                                     ${patient.primaryCarePhysician || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.primaryCarePhysician || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePrimaryCarePhysician}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Current Medications:</span>
                                 <span class="info-value">
                                     ${patient.currentMedications || 'None'}
-                                    <button onclick="copyToClipboard('${(patient.currentMedications || 'None').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeCurrentMedications}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Allergies:</span>
                                 <span class="info-value">
                                     ${patient.allergies || 'None'}
-                                    <button onclick="copyToClipboard('${(patient.allergies || 'None').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeAllergies}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1832,7 +1851,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Reason for Visit:</span>
                                 <span class="info-value">
                                     ${patient.reasonForVisit}
-                                    <button onclick="copyToClipboard('${patient.reasonForVisit.replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeReasonForVisit}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
@@ -1841,7 +1860,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Medical History:</span>
                                 <span class="info-value">
                                     ${patient.medicalHistory}
-                                    <button onclick="copyToClipboard('${patient.medicalHistory.replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeMedicalHistory}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
