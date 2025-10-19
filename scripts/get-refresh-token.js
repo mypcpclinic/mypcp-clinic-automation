@@ -4,7 +4,7 @@ const readline = require('readline');
 // You'll need to replace these with your actual values from Google Cloud Console
 const CLIENT_ID = 'YOUR_CLIENT_ID_HERE';
 const CLIENT_SECRET = 'YOUR_CLIENT_SECRET_HERE';
-const REDIRECT_URI = 'https://mypcp-clinic-automation.onrender.com/auth/google/callback';
+const REDIRECT_URI = 'http://localhost:3001/auth/google/callback';
 
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 

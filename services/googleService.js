@@ -16,22 +16,37 @@ class GoogleService {
       ]
     });
 
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
-    );
-
-    // Set refresh token if available
-    if (process.env.GOOGLE_REFRESH_TOKEN) {
-      this.oauth2Client.setCredentials({
-        refresh_token: process.env.GOOGLE_REFRESH_TOKEN
+    // Use Service Account authentication if available, otherwise fall back to OAuth
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      this.auth = new google.auth.GoogleAuth({
+        credentials: {
+          client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+          private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        },
+        scopes: [
+          'https://www.googleapis.com/auth/spreadsheets',
+          'https://www.googleapis.com/auth/gmail.send',
+          'https://www.googleapis.com/auth/calendar'
+        ]
       });
+    } else {
+      // Fallback to OAuth2
+      this.auth = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_REDIRECT_URI
+      );
+
+      if (process.env.GOOGLE_REFRESH_TOKEN) {
+        this.auth.setCredentials({
+          refresh_token: process.env.GOOGLE_REFRESH_TOKEN
+        });
+      }
     }
 
-    this.sheets = google.sheets({ version: 'v4', auth: this.oauth2Client });
-    this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
-    this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+    this.sheets = google.sheets({ version: 'v4', auth: this.auth });
+    this.gmail = google.gmail({ version: 'v1', auth: this.auth });
+    this.calendar = google.calendar({ version: 'v3', auth: this.auth });
   }
 
   /**
