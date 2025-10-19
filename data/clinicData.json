@@ -1,0 +1,14 @@
+{
+  "patients": [],
+  "appointments": [],
+  "formSubmissions": [],
+  "lastUpdated": "2025-10-19T16:00:00.000Z",
+  "stats": {
+    "totalPatients": 0,
+    "newPatientsThisMonth": 0,
+    "upcomingAppointments": 0,
+    "pendingIntakes": 0,
+    "completedAppointments": 0,
+    "averageWaitTime": "0 minutes"
+  }
+}

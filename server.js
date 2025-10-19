@@ -15,6 +15,7 @@ const AIService = require('./services/aiService');
 const EmailService = require('./services/emailService');
 const CalendlyService = require('./services/calendlyService');
 const FormspreeService = require('./services/formspreeService');
+const DataService = require('./services/dataService');
 
 // Import automation modules
 const IntakeWebhook = require('./automations/intakeWebhook');
@@ -95,17 +96,19 @@ app.get('/debug', (req, res) => {
 });
 
 // Initialize services with error handling
-let googleService, aiService, emailService;
+let googleService, aiService, emailService, dataService;
 try {
   googleService = new GoogleService();
   aiService = new AIService();
   emailService = new EmailService();
+  dataService = new DataService();
 } catch (error) {
   logger.error('Error initializing services:', error);
   // Create mock services for test mode
   googleService = { addPatientIntake: () => Promise.resolve(), getDashboardStats: () => Promise.resolve({}) };
   aiService = { summarizeIntake: () => Promise.resolve('Mock summary') };
   emailService = { sendConfirmation: () => Promise.resolve(), sendReminder: () => Promise.resolve() };
+  dataService = new DataService(); // Always initialize data service
 }
 
 // Test mode - works without external APIs
@@ -173,10 +176,15 @@ app.get('/health', (req, res) => {
 app.post('/test-form', async (req, res) => {
   try {
     logger.info('Test form submission received', { body: req.body });
+    
+    // Store the form submission in real data
+    const submission = await dataService.addFormSubmission(req.body);
+    
     res.json({ 
       success: true, 
-      message: 'Test form submitted successfully!',
+      message: 'Form submitted successfully!',
       receivedData: req.body,
+      submissionId: submission.id,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -190,16 +198,24 @@ app.post('/webhook/formspree', validateWebhook, async (req, res) => {
   try {
     logger.info('Formspree webhook received', { body: req.body });
     
+    // Always store the form submission in real data
+    const submission = await dataService.addFormSubmission(req.body);
+    
     if (TEST_MODE) {
       logger.info('🧪 TEST MODE: Form submission received', { data: req.body });
       res.json({ 
         success: true, 
         message: 'Form processed successfully (TEST MODE)',
-        data: req.body 
+        data: req.body,
+        submissionId: submission.id
       });
     } else {
       await intakeWebhook.handleFormSubmission(req.body);
-      res.json({ success: true, message: 'Intake form processed successfully' });
+      res.json({ 
+        success: true, 
+        message: 'Intake form processed successfully',
+        submissionId: submission.id
+      });
     }
   } catch (error) {
     logger.error('Error processing Formspree webhook', { error: error.message, stack: error.stack });
@@ -242,49 +258,12 @@ app.post('/trigger/weekly-report', async (req, res) => {
 // Dashboard endpoint
 app.get('/dashboard', async (req, res) => {
   try {
-    let stats;
+    // Always use real data service for dashboard
+    const stats = await dataService.getDashboardStats();
+    
+    // Add test mode indicator if in test mode
     if (TEST_MODE) {
-      // Generate mock data for demo
-      stats = {
-        success: true,
-        message: 'Dashboard (TEST MODE)',
-        clinic: {
-          name: 'myPCP Internal Medicine Clinic',
-          location: 'Miami, FL',
-          phone: '(305) 555-0123',
-          email: 'info@bemypcp.com'
-        },
-        stats: {
-          totalPatients: 1247,
-          newPatientsThisMonth: 23,
-          upcomingAppointments: 8,
-          pendingIntakes: 3,
-          completedAppointments: 156,
-          averageWaitTime: '12 minutes',
-          lastUpdated: new Date().toISOString()
-        },
-        recentActivity: [
-          { type: 'New Patient', name: 'John Smith', time: '2 hours ago', status: 'completed' },
-          { type: 'Appointment', name: 'Maria Garcia', time: '4 hours ago', status: 'confirmed' },
-          { type: 'Intake Form', name: 'Robert Johnson', time: '6 hours ago', status: 'pending' },
-          { type: 'Follow-up', name: 'Sarah Wilson', time: '1 day ago', status: 'scheduled' },
-          { type: 'New Patient', name: 'Michael Brown', time: '2 days ago', status: 'completed' }
-        ],
-        upcomingAppointments: [
-          { patient: 'Alice Johnson', time: '9:00 AM', type: 'Annual Physical', status: 'confirmed' },
-          { patient: 'Bob Smith', time: '10:30 AM', type: 'Follow-up', status: 'confirmed' },
-          { patient: 'Carol Davis', time: '2:00 PM', type: 'New Patient', status: 'pending' },
-          { patient: 'David Wilson', time: '3:30 PM', type: 'Consultation', status: 'confirmed' }
-        ],
-        systemHealth: {
-          status: 'operational',
-          uptime: Math.floor(process.uptime() / 3600) + ' hours',
-          lastBackup: '2 hours ago',
-          apiStatus: 'healthy'
-        }
-      };
-    } else {
-      stats = await googleService.getDashboardStats();
+      stats.message = 'Dashboard (Real Data - Test Mode)';
     }
 
     // Return HTML dashboard if requested with Accept: text/html
