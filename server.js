@@ -252,6 +252,24 @@ try {
   weeklyReport = { generateReport: () => Promise.resolve() };
 }
 
+// Debug endpoint to check environment variables
+app.get('/debug-env', (req, res) => {
+  const hasServiceAccount = !!(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY);
+  const hasSheetId = !!process.env.GOOGLE_SHEET_ID;
+  const hasGmailUser = !!process.env.GMAIL_USER;
+  
+  res.json({
+    hasServiceAccount,
+    hasSheetId,
+    hasGmailUser,
+    serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? 'SET' : 'NOT SET',
+    privateKeyLength: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.length : 0,
+    sheetId: process.env.GOOGLE_SHEET_ID || 'NOT SET',
+    gmailUser: process.env.GMAIL_USER || 'NOT SET',
+    testMode: TEST_MODE
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   const uptime = process.uptime();
