@@ -1171,7 +1171,7 @@ function generateDashboardHTML(data) {
                 
                 <!-- Recent Activity -->
                 <div class="section">
-                    <h3>📋 Recent Activity</h3>
+                    <h3>${copyIcon} Recent Activity</h3>
                     <div class="table-container">
                         ${data.recentActivity.length > 0 ? `
                         <table class="table">
@@ -1433,6 +1433,11 @@ function generatePatientDetailsHTML(patient) {
   const isFormSubmission = patient.type === 'form_submission';
   const title = isFormSubmission ? 'Patient Intake Form Details' : 'Patient Details';
   
+  // Generate SVG copy icon
+  const copyIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+  </svg>`;
+  
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -1591,32 +1596,41 @@ function generatePatientDetailsHTML(patient) {
                 }
                 
                 .copy-btn {
-                    background: #f5f5f5;
-                    color: #333;
-                    border: 1px solid #d0d0d0;
-                    padding: 2px 6px;
-                    border-radius: 2px;
+                    background: #F9F5E9;
+                    color: #3CB6AD;
+                    border: 1px solid #3CB6AD;
+                    padding: 4px 6px;
+                    border-radius: 4px;
                     cursor: pointer;
-                    font-size: 11px;
-                    font-family: 'Courier New', monospace;
-                    margin-left: 6px;
+                    font-size: 10px;
+                    margin-left: 8px;
                     transition: all 0.2s ease;
                     vertical-align: middle;
                     line-height: 1;
-                    display: inline-block;
-                    min-width: 16px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 20px;
+                    min-height: 20px;
                     text-align: center;
                 }
                 
                 .copy-btn:hover {
-                    background: #e8e8e8;
-                    border-color: #999;
+                    background: #3CB6AD;
+                    color: #F9F5E9;
+                    transform: scale(1.05);
                 }
                 
                 .copy-btn.copied {
-                    background: #d4edda;
-                    color: #155724;
-                    border-color: #c3e6cb;
+                    background: #2E8C83;
+                    color: #F9F5E9;
+                    border-color: #2E8C83;
+                }
+                
+                .copy-btn svg {
+                    width: 12px;
+                    height: 12px;
+                    fill: currentColor;
                 }
                 
                 .info-value {
@@ -1628,18 +1642,29 @@ function generatePatientDetailsHTML(patient) {
                 
                 .copy-all-btn {
                     background: #3CB6AD;
-                    color: white;
-                    border: none;
+                    color: #F9F5E9;
+                    border: 2px solid #3CB6AD;
                     padding: 12px 24px;
                     border-radius: 8px;
                     cursor: pointer;
                     font-weight: 500;
                     margin: 20px 0;
-                    transition: background 0.3s ease;
+                    transition: all 0.3s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
                 }
                 
                 .copy-all-btn:hover {
                     background: #2E8C83;
+                    border-color: #2E8C83;
+                    transform: translateY(-1px);
+                }
+                
+                .copy-all-btn svg {
+                    width: 16px;
+                    height: 16px;
+                    fill: currentColor;
                 }
     </style>
 </head>
@@ -1652,7 +1677,12 @@ function generatePatientDetailsHTML(patient) {
                 
                 <div class="content">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <button onclick="copyAllPatientInfo()" class="copy-all-btn">📋 Copy All Patient Information</button>
+                        <button onclick="copyAllPatientInfo()" class="copy-all-btn">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                            Copy All Patient Information
+                        </button>
                     </div>
             <div class="patient-info">
                 <div class="info-section">
@@ -1661,35 +1691,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Full Name:</span>
                                 <span class="info-value">
                                     ${patient.fullName || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.fullName || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Date of Birth:</span>
                                 <span class="info-value">
                                     ${patient.dateOfBirth || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.dateOfBirth || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.dateOfBirth || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Gender:</span>
                                 <span class="info-value">
                                     ${patient.gender || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.gender || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.gender || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Phone:</span>
                                 <span class="info-value">
                                     ${patient.phone || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.phone || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.phone || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Email:</span>
                                 <span class="info-value">
                                     ${patient.email || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.email || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.email || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1700,35 +1730,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Address:</span>
                                 <span class="info-value">
                                     ${patient.address || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.address || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.address || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">City:</span>
                                 <span class="info-value">
                                     ${patient.city || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.city || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.city || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">State:</span>
                                 <span class="info-value">
                                     ${patient.state || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.state || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.state || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">ZIP Code:</span>
                                 <span class="info-value">
                                     ${patient.zipCode || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.zipCode || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.zipCode || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Emergency Contact:</span>
                                 <span class="info-value">
                                     ${patient.emergencyContact || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.emergencyContact || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.emergencyContact || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1741,60 +1771,60 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Insurance Provider:</span>
                                 <span class="info-value">
                                     ${patient.insuranceProvider || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.insuranceProvider || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.insuranceProvider || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Policy Number:</span>
                                 <span class="info-value">
                                     ${patient.policyNumber || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.policyNumber || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.policyNumber || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Primary Care Physician:</span>
                                 <span class="info-value">
                                     ${patient.primaryCarePhysician || 'N/A'}
-                                    <button onclick="copyToClipboard('${(patient.primaryCarePhysician || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.primaryCarePhysician || 'N/A').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Current Medications:</span>
                                 <span class="info-value">
                                     ${patient.currentMedications || 'None'}
-                                    <button onclick="copyToClipboard('${(patient.currentMedications || 'None').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.currentMedications || 'None').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Allergies:</span>
                                 <span class="info-value">
                                     ${patient.allergies || 'None'}
-                                    <button onclick="copyToClipboard('${(patient.allergies || 'None').replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${(patient.allergies || 'None').replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
                 
                 <div class="info-section">
-                    <h3>📋 Form Details</h3>
+                    <h3>${copyIcon} Form Details</h3>
                             <div class="info-item">
                                 <span class="info-label">Status:</span>
                                 <span class="info-value">
                                     <span class="status-badge status-${patient.status}">${patient.status}</span>
-                                    <button onclick="copyToClipboard('${patient.status}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${patient.status}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Submitted:</span>
                                 <span class="info-value">
                                     ${new Date(patient.timestamp).toLocaleString()}
-                                    <button onclick="copyToClipboard('${new Date(patient.timestamp).toLocaleString()}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${new Date(patient.timestamp).toLocaleString()}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Type:</span>
                                 <span class="info-value">
                                     ${isFormSubmission ? 'Intake Form' : 'Patient Record'}
-                                    <button onclick="copyToClipboard('${isFormSubmission ? 'Intake Form' : 'Patient Record'}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${isFormSubmission ? 'Intake Form' : 'Patient Record'}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ${patient.reasonForVisit ? `
@@ -1802,7 +1832,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Reason for Visit:</span>
                                 <span class="info-value">
                                     ${patient.reasonForVisit}
-                                    <button onclick="copyToClipboard('${patient.reasonForVisit.replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${patient.reasonForVisit.replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
@@ -1811,7 +1841,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Medical History:</span>
                                 <span class="info-value">
                                     ${patient.medicalHistory}
-                                    <button onclick="copyToClipboard('${patient.medicalHistory.replace(/'/g, "\\'")}')" class="copy-btn">📋</button>
+                                    <button onclick="copyToClipboard('${patient.medicalHistory.replace(/'/g, "\\'")}')" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
@@ -1832,17 +1862,17 @@ function generatePatientDetailsHTML(patient) {
     <script>
         // Copy individual field to clipboard
         function copyToClipboard(text) {
-            const button = event.target;
-            const originalText = button.textContent;
+            const button = event.target.closest('.copy-btn');
+            const originalHTML = button.innerHTML;
             
             navigator.clipboard.writeText(text).then(function() {
-                // Show success feedback
-                button.textContent = '✓';
+                // Show success feedback with checkmark SVG
+                button.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
                 button.classList.add('copied');
                 
                 // Reset after 1.5 seconds
                 setTimeout(function() {
-                    button.textContent = originalText;
+                    button.innerHTML = originalHTML;
                     button.classList.remove('copied');
                 }, 1500);
             }).catch(function(err) {
@@ -1856,11 +1886,11 @@ function generatePatientDetailsHTML(patient) {
                 document.body.removeChild(textArea);
                 
                 // Show success feedback
-                button.textContent = '✓';
+                button.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
                 button.classList.add('copied');
                 
                 setTimeout(function() {
-                    button.textContent = originalText;
+                    button.innerHTML = originalHTML;
                     button.classList.remove('copied');
                 }, 1500);
             });
