@@ -18,6 +18,12 @@ class DataService {
     try {
       const data = await fs.readFile(this.dataFile, 'utf8');
       this.data = JSON.parse(data);
+      
+      // Initialize dailyPatients if it doesn't exist
+      if (!this.data.dailyPatients) {
+        this.data.dailyPatients = {};
+      }
+      
       return this.data;
     } catch (error) {
       // If file doesn't exist, create default data
@@ -25,6 +31,7 @@ class DataService {
         patients: [],
         appointments: [],
         formSubmissions: [],
+        dailyPatients: {},
         lastUpdated: new Date().toISOString(),
         stats: {
           totalPatients: 0,
