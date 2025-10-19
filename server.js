@@ -76,6 +76,24 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
 });
 
+// Debug route to check if server is working
+app.get('/debug', (req, res) => {
+    res.json({
+        status: 'working',
+        testMode: TEST_MODE,
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString(),
+        routes: [
+            '/',
+            '/health',
+            '/dashboard',
+            '/patient-form',
+            '/test-form',
+            '/webhook/formspree'
+        ]
+    });
+});
+
 // Initialize services
 const googleService = new GoogleService();
 const aiService = new AIService();
@@ -214,6 +232,24 @@ cron.schedule('0 9 * * 1', async () => {
   } catch (error) {
     logger.error('Error in scheduled weekly report', { error: error.message });
   }
+});
+
+// Catch-all route for debugging
+app.use('*', (req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl,
+    availableRoutes: [
+      '/',
+      '/health',
+      '/dashboard',
+      '/patient-form',
+      '/test-form',
+      '/webhook/formspree',
+      '/debug'
+    ],
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
