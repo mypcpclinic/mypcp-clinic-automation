@@ -137,12 +137,36 @@ try {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  const uptime = process.uptime();
+  const memoryUsage = process.memoryUsage();
+  const healthData = {
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'myPCP Clinic Automation System',
-    testMode: TEST_MODE
-  });
+    testMode: TEST_MODE,
+    uptime: {
+      seconds: Math.floor(uptime),
+      minutes: Math.floor(uptime / 60),
+      hours: Math.floor(uptime / 3600),
+      days: Math.floor(uptime / 86400)
+    },
+    memory: {
+      rss: Math.round(memoryUsage.rss / 1024 / 1024) + ' MB',
+      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB',
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
+      external: Math.round(memoryUsage.external / 1024 / 1024) + ' MB'
+    },
+    environment: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+    platform: process.platform
+  };
+
+  // Return HTML dashboard if requested with Accept: text/html
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    res.send(generateHealthDashboard(healthData));
+  } else {
+    res.json(healthData);
+  }
 });
 
 // Test form submission endpoint
@@ -218,19 +242,55 @@ app.post('/trigger/weekly-report', async (req, res) => {
 // Dashboard endpoint
 app.get('/dashboard', async (req, res) => {
   try {
+    let stats;
     if (TEST_MODE) {
-      res.json({
+      // Generate mock data for demo
+      stats = {
         success: true,
         message: 'Dashboard (TEST MODE)',
+        clinic: {
+          name: 'myPCP Internal Medicine Clinic',
+          location: 'Miami, FL',
+          phone: '(305) 555-0123',
+          email: 'info@bemypcp.com'
+        },
         stats: {
-          totalPatients: 0,
-          upcomingAppointments: 0,
-          pendingIntakes: 0,
+          totalPatients: 1247,
+          newPatientsThisMonth: 23,
+          upcomingAppointments: 8,
+          pendingIntakes: 3,
+          completedAppointments: 156,
+          averageWaitTime: '12 minutes',
           lastUpdated: new Date().toISOString()
+        },
+        recentActivity: [
+          { type: 'New Patient', name: 'John Smith', time: '2 hours ago', status: 'completed' },
+          { type: 'Appointment', name: 'Maria Garcia', time: '4 hours ago', status: 'confirmed' },
+          { type: 'Intake Form', name: 'Robert Johnson', time: '6 hours ago', status: 'pending' },
+          { type: 'Follow-up', name: 'Sarah Wilson', time: '1 day ago', status: 'scheduled' },
+          { type: 'New Patient', name: 'Michael Brown', time: '2 days ago', status: 'completed' }
+        ],
+        upcomingAppointments: [
+          { patient: 'Alice Johnson', time: '9:00 AM', type: 'Annual Physical', status: 'confirmed' },
+          { patient: 'Bob Smith', time: '10:30 AM', type: 'Follow-up', status: 'confirmed' },
+          { patient: 'Carol Davis', time: '2:00 PM', type: 'New Patient', status: 'pending' },
+          { patient: 'David Wilson', time: '3:30 PM', type: 'Consultation', status: 'confirmed' }
+        ],
+        systemHealth: {
+          status: 'operational',
+          uptime: Math.floor(process.uptime() / 3600) + ' hours',
+          lastBackup: '2 hours ago',
+          apiStatus: 'healthy'
         }
-      });
+      };
     } else {
-      const stats = await googleService.getDashboardStats();
+      stats = await googleService.getDashboardStats();
+    }
+
+    // Return HTML dashboard if requested with Accept: text/html
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      res.send(generateDashboardHTML(stats));
+    } else {
       res.json(stats);
     }
   } catch (error) {
@@ -287,6 +347,503 @@ app.listen(PORT, () => {
   logger.info(`Environment: ${process.env.NODE_ENV}`);
   logger.info(`Health check: http://localhost:${PORT}/health`);
 });
+
+// HTML Generation Functions
+function generateHealthDashboard(data) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health - myPCP Clinic</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: #1E1E1E;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3CB6AD;
+        }
+        .card h3 {
+            margin: 0 0 15px 0;
+            color: #2E8C83;
+            font-size: 1.2em;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .metric:last-child {
+            border-bottom: none;
+        }
+        .metric-label {
+            font-weight: 500;
+            color: #555;
+        }
+        .metric-value {
+            font-weight: 600;
+            color: #2E8C83;
+        }
+        .uptime-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3CB6AD;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .refresh-btn {
+            background: #3CB6AD;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 20px 0;
+        }
+        .refresh-btn:hover {
+            background: #2E8C83;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 System Health Monitor</h1>
+            <div class="status-badge">${data.status.toUpperCase()}</div>
+            <p>myPCP Clinic Automation System</p>
+        </div>
+        
+        <div class="content">
+            <div class="uptime-display">
+                ⏱️ System Uptime: ${data.uptime.days}d ${data.uptime.hours}h ${data.uptime.minutes}m
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📊 System Information</h3>
+                    <div class="metric">
+                        <span class="metric-label">Environment:</span>
+                        <span class="metric-value">${data.environment}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Node Version:</span>
+                        <span class="metric-value">${data.nodeVersion}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Platform:</span>
+                        <span class="metric-value">${data.platform}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Test Mode:</span>
+                        <span class="metric-value">${data.testMode ? 'Enabled' : 'Disabled'}</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>💾 Memory Usage</h3>
+                    <div class="metric">
+                        <span class="metric-label">RSS Memory:</span>
+                        <span class="metric-value">${data.memory.rss}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Heap Total:</span>
+                        <span class="metric-value">${data.memory.heapTotal}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Heap Used:</span>
+                        <span class="metric-value">${data.memory.heapUsed}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">External:</span>
+                        <span class="metric-value">${data.memory.external}</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>⏰ Time Information</h3>
+                    <div class="metric">
+                        <span class="metric-label">Current Time:</span>
+                        <span class="metric-value">${new Date(data.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime (Days):</span>
+                        <span class="metric-value">${data.uptime.days}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime (Hours):</span>
+                        <span class="metric-value">${data.uptime.hours}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime (Minutes):</span>
+                        <span class="metric-value">${data.uptime.minutes}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="refresh-btn" onclick="window.location.reload()">🔄 Refresh Status</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Last updated: ${new Date(data.timestamp).toLocaleString()}</p>
+            <p>myPCP Internal Medicine Clinic - Miami, FL</p>
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+function generateDashboardHTML(data) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Dashboard - myPCP</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: #1E1E1E;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .clinic-info {
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            border-left: 4px solid #3CB6AD;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3CB6AD;
+            margin: 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid #3CB6AD;
+        }
+        .card h3 {
+            margin: 0 0 20px 0;
+            color: #2E8C83;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-info {
+            flex: 1;
+        }
+        .activity-type {
+            font-weight: 600;
+            color: #2E8C83;
+        }
+        .activity-name {
+            color: #555;
+            margin-top: 2px;
+        }
+        .activity-time {
+            color: #888;
+            font-size: 0.9em;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-scheduled { background: #e2e3e5; color: #383d41; }
+        .appointment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3CB6AD;
+        }
+        .appointment-info {
+            flex: 1;
+        }
+        .appointment-patient {
+            font-weight: 600;
+            color: #2E8C83;
+        }
+        .appointment-details {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 2px;
+        }
+        .appointment-time {
+            font-weight: 600;
+            color: #3CB6AD;
+        }
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .refresh-btn {
+            background: #3CB6AD;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 20px 0;
+        }
+        .refresh-btn:hover {
+            background: #2E8C83;
+        }
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Clinic Dashboard</h1>
+            <div class="clinic-info">
+                <h2>${data.clinic.name}</h2>
+                <p>${data.clinic.location} • ${data.clinic.phone} • ${data.clinic.email}</p>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.totalPatients.toLocaleString()}</div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.newPatientsThisMonth}</div>
+                    <div class="stat-label">New This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.upcomingAppointments}</div>
+                    <div class="stat-label">Upcoming Appointments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.pendingIntakes}</div>
+                    <div class="stat-label">Pending Intakes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.completedAppointments}</div>
+                    <div class="stat-label">Completed Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${data.stats.averageWaitTime}</div>
+                    <div class="stat-label">Avg Wait Time</div>
+                </div>
+            </div>
+            
+            <div class="main-grid">
+                <div class="card">
+                    <h3>📋 Recent Activity</h3>
+                    ${data.recentActivity.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <div class="activity-type">${activity.type}</div>
+                                <div class="activity-name">${activity.name}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                            <span class="status-badge status-${activity.status}">${activity.status}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="card">
+                    <h3>📅 Today's Appointments</h3>
+                    ${data.upcomingAppointments.map(appointment => `
+                        <div class="appointment-item">
+                            <div class="appointment-info">
+                                <div class="appointment-patient">${appointment.patient}</div>
+                                <div class="appointment-details">${appointment.type}</div>
+                            </div>
+                            <div class="appointment-time">${appointment.time}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ System Status</h3>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span><strong>Status:</strong> ${data.systemHealth.status}</span>
+                </div>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span><strong>Uptime:</strong> ${data.systemHealth.uptime}</span>
+                </div>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span><strong>Last Backup:</strong> ${data.systemHealth.lastBackup}</span>
+                </div>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span><strong>API Status:</strong> ${data.systemHealth.apiStatus}</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="refresh-btn" onclick="window.location.reload()">🔄 Refresh Dashboard</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Last updated: ${new Date(data.stats.lastUpdated).toLocaleString()}</p>
+            <p>myPCP Internal Medicine Clinic - Miami, FL</p>
+        </div>
+    </div>
+</body>
+</html>`;
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
