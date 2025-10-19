@@ -96,6 +96,38 @@ app.get('/debug', (req, res) => {
     });
 });
 
+// OAuth callback route
+app.get('/auth/google/callback', (req, res) => {
+    const { code } = req.query;
+    
+    if (!code) {
+        return res.status(400).send('Authorization code not provided');
+    }
+    
+    // This will be handled by the Google Service
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>OAuth Success</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #F9F5E9; }
+                .container { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
+                .success { color: #2E8C83; font-size: 24px; margin-bottom: 20px; }
+                .btn { background: #3CB6AD; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="success">✅ OAuth Authorization Successful!</div>
+                <p>You can now close this window and return to your dashboard.</p>
+                <a href="/dashboard" class="btn">Go to Dashboard</a>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
 // Setup guide route
 app.get('/setup-guide', (req, res) => {
     const fs = require('fs');

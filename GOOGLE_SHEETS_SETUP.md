@@ -13,8 +13,13 @@
 ### **Step 2: Create Credentials**
 1. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client ID"
 2. Application type: "Web application"
-3. Add authorized redirect URI: `http://localhost:3001/auth/google/callback`
-4. Download the JSON file
+3. Add authorized JavaScript origins:
+   - `http://localhost:3001`
+   - `https://mypcp-clinic-automation.onrender.com`
+4. Add authorized redirect URIs:
+   - `http://localhost:3001`
+   - `https://mypcp-clinic-automation.onrender.com`
+5. Download the JSON file
 
 ### **Step 3: Create Google Sheet**
 1. Go to [Google Sheets](https://sheets.google.com)
