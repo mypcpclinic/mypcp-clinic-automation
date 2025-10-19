@@ -555,41 +555,70 @@ function generateDashboardHTML(data) {
         .header {
             background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 20px 30px;
             position: relative;
         }
-        .logo-container {
+        .header-content {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         .logo-image {
-            height: 80px;
+            height: 60px;
             width: auto;
-            margin-right: 15px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .logo-fallback {
-            height: 80px;
-            width: 80px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
+            height: 60px;
+            width: 60px;
+            background: white;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2em;
-            margin-right: 15px;
+            font-size: 1.8em;
+            color: #2E8C83;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .header h1 {
+        .clinic-info {
+            text-align: left;
+        }
+        .clinic-info h1 {
             margin: 0;
-            font-size: 2.5em;
-            font-weight: 300;
+            font-size: 1.8em;
+            font-weight: 600;
+            color: white;
         }
-        .header p {
-            margin: 10px 0 0 0;
-            font-size: 1.1em;
+        .clinic-info p {
+            margin: 5px 0 0 0;
+            font-size: 0.95em;
             opacity: 0.9;
+            color: white;
+        }
+        .dashboard-title {
+            text-align: right;
+            color: white;
+        }
+        .dashboard-title h2 {
+            margin: 0;
+            font-size: 1.4em;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+        .dashboard-title p {
+            margin: 3px 0 0 0;
+            font-size: 0.85em;
+            opacity: 0.8;
         }
         .content {
             padding: 30px;
@@ -750,6 +779,20 @@ function generateDashboardHTML(data) {
             margin-bottom: 30px;
         }
         @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .logo-section {
+                justify-content: center;
+            }
+            .dashboard-title {
+                text-align: center;
+            }
+            .clinic-info h1 {
+                font-size: 1.5em;
+            }
             .main-grid {
                 grid-template-columns: 1fr;
             }
@@ -762,12 +805,18 @@ function generateDashboardHTML(data) {
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo-container">
-                <img src="/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="logo-fallback" style="display: none;">🏥</div>
-                <div>
-                    <h1>📊 Clinic Dashboard</h1>
-                    <p>myPCP Internal Medicine Clinic - Miami</p>
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-fallback" style="display: none;">🏥</div>
+                    <div class="clinic-info">
+                        <h1>myPCP Internal Medicine</h1>
+                        <p>Miami, FL • (305) 555-0123</p>
+                    </div>
+                </div>
+                <div class="dashboard-title">
+                    <h2>📊 Clinic Dashboard</h2>
+                    <p>Real-time Analytics</p>
                 </div>
             </div>
         </div>
