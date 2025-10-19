@@ -91,7 +91,8 @@ app.get('/debug', (req, res) => {
             '/patient-form',
             '/test-form',
             '/webhook/formspree',
-            '/setup-guide'
+            '/setup-guide',
+            '/patient/:id'
         ]
     });
 });
