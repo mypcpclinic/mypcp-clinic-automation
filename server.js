@@ -547,22 +547,23 @@ function generateDashboardHTML(data) {
             min-height: 100vh;
         }
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
+            background: #F9F5E9;
             min-height: 100vh;
         }
         .header {
-            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
-            color: white;
-            padding: 20px 30px;
-            position: relative;
+            background: white;
+            color: #1E1E1E;
+            padding: 15px 20px;
+            border-bottom: 3px solid #3CB6AD;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .header-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         .logo-section {
@@ -571,135 +572,149 @@ function generateDashboardHTML(data) {
             gap: 15px;
         }
         .logo-image {
-            height: 60px;
+            height: 50px;
             width: auto;
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .logo-fallback {
-            height: 60px;
-            width: 60px;
-            background: white;
+            height: 50px;
+            width: 50px;
+            background: #3CB6AD;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8em;
-            color: #2E8C83;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 1.5em;
+            color: white;
         }
         .clinic-info {
             text-align: left;
         }
         .clinic-info h1 {
             margin: 0;
-            font-size: 1.8em;
+            font-size: 1.6em;
             font-weight: 600;
-            color: white;
+            color: #2E8C83;
         }
         .clinic-info p {
-            margin: 5px 0 0 0;
-            font-size: 0.95em;
-            opacity: 0.9;
-            color: white;
+            margin: 3px 0 0 0;
+            font-size: 0.9em;
+            color: #1E1E1E;
         }
         .dashboard-title {
             text-align: right;
-            color: white;
+            color: #1E1E1E;
         }
         .dashboard-title h2 {
             margin: 0;
-            font-size: 1.4em;
-            font-weight: 500;
-            opacity: 0.95;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2E8C83;
         }
         .dashboard-title p {
             margin: 3px 0 0 0;
             font-size: 0.85em;
-            opacity: 0.8;
+            color: #1E1E1E;
         }
         .content {
-            padding: 30px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+        .left-panel, .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
         }
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 8px;
+            padding: 15px;
             text-align: center;
-            border: 2px solid #3CB6AD;
-            box-shadow: 0 4px 15px rgba(60, 182, 173, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #3CB6AD;
+            box-shadow: 0 2px 8px rgba(60, 182, 173, 0.1);
+            transition: transform 0.2s ease;
         }
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(60, 182, 173, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(60, 182, 173, 0.15);
         }
         .stat-number {
-            font-size: 2.5em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #2E8C83;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .stat-label {
             color: #1E1E1E;
-            font-size: 1em;
+            font-size: 0.85em;
             font-weight: 500;
         }
         .section {
-            margin-bottom: 40px;
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .section h3 {
             color: #2E8C83;
-            border-bottom: 3px solid #3CB6AD;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            font-size: 1.4em;
+            border-bottom: 2px solid #3CB6AD;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 1.1em;
             font-weight: 600;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.85em;
+            flex: 1;
         }
         .table th {
-            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            background: #3CB6AD;
             color: white;
-            padding: 18px 15px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
-            font-size: 1em;
+            font-size: 0.8em;
         }
         .table td {
-            padding: 15px;
+            padding: 8px 10px;
             border-bottom: 1px solid #e0e0e0;
-            font-size: 0.95em;
+            font-size: 0.8em;
         }
         .table tr:hover {
-            background: #f8f9fa;
+            background: #F9F5E9;
         }
         .table tr:last-child td {
             border-bottom: none;
         }
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 200px;
+        }
         .status-badge {
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
             font-weight: 500;
             text-transform: capitalize;
         }
@@ -709,57 +724,59 @@ function generateDashboardHTML(data) {
         .status-scheduled { background: #e2e3e5; color: #383d41; }
         .chart-container {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex: 1;
         }
         .chart-placeholder {
-            height: 300px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 8px;
+            height: 120px;
+            background: linear-gradient(135deg, #F9F5E9 0%, #e9ecef 100%);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #6c757d;
-            font-size: 1.1em;
-            border: 2px dashed #dee2e6;
+            font-size: 0.9em;
+            border: 2px dashed #3CB6AD;
         }
         .footer {
-            background: #f8f9fa;
-            padding: 25px;
+            background: white;
+            padding: 10px 20px;
             text-align: center;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
+            color: #1E1E1E;
+            border-top: 2px solid #3CB6AD;
+            font-size: 0.8em;
         }
         .refresh-btn {
-            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            background: #3CB6AD;
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.8em;
             font-weight: 500;
-            margin: 20px 0;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 10px 0;
+            transition: background 0.2s ease;
         }
         .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(60, 182, 173, 0.3);
+            background: #2E8C83;
         }
         .empty-state {
             text-align: center;
-            padding: 40px;
+            padding: 20px;
             color: #6c757d;
             font-style: italic;
+            font-size: 0.85em;
         }
         .metric-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #e0e0e0;
+            font-size: 0.8em;
         }
         .metric-row:last-child {
             border-bottom: none;
@@ -772,16 +789,19 @@ function generateDashboardHTML(data) {
             font-weight: 600;
             color: #2E8C83;
         }
-        .main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+        @media (max-width: 1200px) {
+            .content {
+                grid-template-columns: 1fr;
+                max-height: none;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
                 text-align: center;
             }
             .logo-section {
@@ -791,13 +811,13 @@ function generateDashboardHTML(data) {
                 text-align: center;
             }
             .clinic-info h1 {
-                font-size: 1.5em;
-            }
-            .main-grid {
-                grid-template-columns: 1fr;
+                font-size: 1.3em;
             }
             .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 15px;
             }
         }
     </style>
@@ -822,126 +842,136 @@ function generateDashboardHTML(data) {
         </div>
         
         <div class="content">
-            <!-- Key Metrics -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.totalPatients}</div>
-                    <div class="stat-label">Total Patients</div>
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <!-- Key Metrics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.totalPatients}</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.newPatientsThisMonth}</div>
+                        <div class="stat-label">New This Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.upcomingAppointments}</div>
+                        <div class="stat-label">Upcoming</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.pendingIntakes}</div>
+                        <div class="stat-label">Pending Intakes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.completedAppointments}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.stats.averageWaitTime}</div>
+                        <div class="stat-label">Avg Wait</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.newPatientsThisMonth}</div>
-                    <div class="stat-label">New This Month</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.upcomingAppointments}</div>
-                    <div class="stat-label">Upcoming Appointments</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.pendingIntakes}</div>
-                    <div class="stat-label">Pending Intakes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.completedAppointments}</div>
-                    <div class="stat-label">Completed Today</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.stats.averageWaitTime}</div>
-                    <div class="stat-label">Avg Wait Time</div>
+                
+                <!-- Recent Activity -->
+                <div class="section">
+                    <h3>📋 Recent Activity</h3>
+                    <div class="table-container">
+                        ${data.recentActivity.length > 0 ? `
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Patient</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.recentActivity.map(activity => `
+                                    <tr>
+                                        <td>${activity.type}</td>
+                                        <td>${activity.name}</td>
+                                        <td>${activity.time}</td>
+                                        <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        ` : `
+                        <div class="empty-state">
+                            No recent activity
+                        </div>
+                        `}
+                    </div>
                 </div>
             </div>
             
-            <!-- Charts Section -->
-            <div class="chart-container">
-                <h3>📈 Patient Activity Trends</h3>
-                <div class="chart-placeholder">
-                    📊 Interactive charts will be available with Google Sheets integration
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <!-- Charts Section -->
+                <div class="chart-container">
+                    <h3>📈 Activity Trends</h3>
+                    <div class="chart-placeholder">
+                        📊 Charts with Google Sheets
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Recent Activity -->
-            <div class="section">
-                <h3>📋 Recent Activity</h3>
-                ${data.recentActivity.length > 0 ? `
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Patient Name</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.recentActivity.map(activity => `
-                            <tr>
-                                <td>${activity.type}</td>
-                                <td>${activity.name}</td>
-                                <td>${activity.time}</td>
-                                <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                ` : `
-                <div class="empty-state">
-                    No recent activity to display
+                
+                <!-- Upcoming Appointments -->
+                <div class="section">
+                    <h3>📅 Upcoming Appointments</h3>
+                    <div class="table-container">
+                        ${data.upcomingAppointments.length > 0 ? `
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.upcomingAppointments.map(appointment => `
+                                    <tr>
+                                        <td>${appointment.patient}</td>
+                                        <td>${appointment.time}</td>
+                                        <td>${appointment.type}</td>
+                                        <td><span class="status-badge status-${appointment.status}">${appointment.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        ` : `
+                        <div class="empty-state">
+                            No upcoming appointments
+                        </div>
+                        `}
+                    </div>
                 </div>
-                `}
-            </div>
-            
-            <!-- Upcoming Appointments -->
-            <div class="section">
-                <h3>📅 Upcoming Appointments</h3>
-                ${data.upcomingAppointments.length > 0 ? `
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Patient</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.upcomingAppointments.map(appointment => `
-                            <tr>
-                                <td>${appointment.patient}</td>
-                                <td>${appointment.time}</td>
-                                <td>${appointment.type}</td>
-                                <td><span class="status-badge status-${appointment.status}">${appointment.status}</span></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                ` : `
-                <div class="empty-state">
-                    No upcoming appointments scheduled
-                </div>
-                `}
-            </div>
-            
-            <!-- System Health -->
-            <div class="section">
-                <h3>⚙️ System Health & Performance</h3>
-                <div class="metric-row">
-                    <span class="metric-label">System Status</span>
-                    <span class="metric-value">${data.systemHealth.status}</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">Uptime</span>
-                    <span class="metric-value">${data.systemHealth.uptime}</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">Last Data Backup</span>
-                    <span class="metric-value">${data.systemHealth.lastBackup}</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">API Status</span>
-                    <span class="metric-value">${data.systemHealth.apiStatus}</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">Data Mode</span>
-                    <span class="metric-value">${data.message.includes('TEST MODE') ? 'Test Mode (Real Data)' : 'Production Mode'}</span>
+                
+                <!-- System Health -->
+                <div class="section">
+                    <h3>⚙️ System Health</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Status</span>
+                        <span class="metric-value">${data.systemHealth.status}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value">${data.systemHealth.uptime}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Last Backup</span>
+                        <span class="metric-value">${data.systemHealth.lastBackup}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">API Status</span>
+                        <span class="metric-value">${data.systemHealth.apiStatus}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Mode</span>
+                        <span class="metric-value">${data.message.includes('TEST MODE') ? 'Test Mode' : 'Production'}</span>
+                    </div>
                 </div>
             </div>
         </div>
