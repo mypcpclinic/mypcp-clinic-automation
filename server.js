@@ -541,8 +541,8 @@ function generateDashboardHTML(data) {
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            padding: 0;
+            background-color: #F9F5E9;
             color: #1E1E1E;
             min-height: 100vh;
         }
@@ -550,23 +550,45 @@ function generateDashboardHTML(data) {
             max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            overflow: hidden;
+            min-height: 100vh;
         }
         .header {
             background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-image {
+            height: 80px;
+            width: auto;
+            margin-right: 15px;
+        }
+        .logo-fallback {
+            height: 80px;
+            width: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin-right: 15px;
         }
         .header h1 {
             margin: 0;
             font-size: 2.5em;
             font-weight: 300;
         }
-        .clinic-info {
-            margin-top: 15px;
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
             opacity: 0.9;
         }
         .content {
@@ -576,142 +598,156 @@ function generateDashboardHTML(data) {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         .stat-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
+            background: white;
+            border-radius: 12px;
             padding: 25px;
             text-align: center;
-            border-left: 4px solid #3CB6AD;
-            transition: transform 0.2s;
+            border: 2px solid #3CB6AD;
+            box-shadow: 0 4px 15px rgba(60, 182, 173, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .stat-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(60, 182, 173, 0.2);
         }
         .stat-number {
             font-size: 2.5em;
             font-weight: bold;
-            color: #3CB6AD;
-            margin: 0;
+            color: #2E8C83;
+            margin-bottom: 8px;
         }
         .stat-label {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
+            color: #1E1E1E;
+            font-size: 1em;
+            font-weight: 500;
         }
-        .main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        .card {
-            background: #f8f9fa;
-            border-radius: 10px;
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 12px;
             padding: 25px;
-            border-left: 4px solid #3CB6AD;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .card h3 {
-            margin: 0 0 20px 0;
+        .section h3 {
             color: #2E8C83;
-            font-size: 1.3em;
+            border-bottom: 3px solid #3CB6AD;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .table th {
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.95em;
+        }
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-scheduled { background: #e2e3e5; color: #383d41; }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.1em;
+            border: 2px dashed #dee2e6;
         }
-        .activity-item {
+        .footer {
+            background: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .refresh-btn {
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            margin: 20px 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(60, 182, 173, 0.3);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        .metric-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
             border-bottom: 1px solid #e0e0e0;
         }
-        .activity-item:last-child {
+        .metric-row:last-child {
             border-bottom: none;
         }
-        .activity-info {
-            flex: 1;
-        }
-        .activity-type {
-            font-weight: 600;
-            color: #2E8C83;
-        }
-        .activity-name {
-            color: #555;
-            margin-top: 2px;
-        }
-        .activity-time {
-            color: #888;
-            font-size: 0.9em;
-        }
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
+        .metric-label {
             font-weight: 500;
+            color: #1E1E1E;
         }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-confirmed { background: #d1ecf1; color: #0c5460; }
-        .status-scheduled { background: #e2e3e5; color: #383d41; }
-        .appointment-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 3px solid #3CB6AD;
-        }
-        .appointment-info {
-            flex: 1;
-        }
-        .appointment-patient {
+        .metric-value {
             font-weight: 600;
             color: #2E8C83;
         }
-        .appointment-details {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 2px;
-        }
-        .appointment-time {
-            font-weight: 600;
-            color: #3CB6AD;
-        }
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #4CAF50;
-        }
-        .footer {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
-        }
-        .refresh-btn {
-            background: #3CB6AD;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 20px 0;
-        }
-        .refresh-btn:hover {
-            background: #2E8C83;
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
         @media (max-width: 768px) {
             .main-grid {
@@ -726,17 +762,21 @@ function generateDashboardHTML(data) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏥 Clinic Dashboard</h1>
-            <div class="clinic-info">
-                <h2>${data.clinic.name}</h2>
-                <p>${data.clinic.location} • ${data.clinic.phone} • ${data.clinic.email}</p>
+            <div class="logo-container">
+                <img src="/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback" style="display: none;">🏥</div>
+                <div>
+                    <h1>📊 Clinic Dashboard</h1>
+                    <p>myPCP Internal Medicine Clinic - Miami</p>
+                </div>
             </div>
         </div>
         
         <div class="content">
+            <!-- Key Metrics -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">${data.stats.totalPatients.toLocaleString()}</div>
+                    <div class="stat-number">${data.stats.totalPatients}</div>
                     <div class="stat-label">Total Patients</div>
                 </div>
                 <div class="stat-card">
@@ -761,63 +801,110 @@ function generateDashboardHTML(data) {
                 </div>
             </div>
             
-            <div class="main-grid">
-                <div class="card">
-                    <h3>📋 Recent Activity</h3>
-                    ${data.recentActivity.map(activity => `
-                        <div class="activity-item">
-                            <div class="activity-info">
-                                <div class="activity-type">${activity.type}</div>
-                                <div class="activity-name">${activity.name}</div>
-                                <div class="activity-time">${activity.time}</div>
-                            </div>
-                            <span class="status-badge status-${activity.status}">${activity.status}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <div class="card">
-                    <h3>📅 Today's Appointments</h3>
-                    ${data.upcomingAppointments.map(appointment => `
-                        <div class="appointment-item">
-                            <div class="appointment-info">
-                                <div class="appointment-patient">${appointment.patient}</div>
-                                <div class="appointment-details">${appointment.type}</div>
-                            </div>
-                            <div class="appointment-time">${appointment.time}</div>
-                        </div>
-                    `).join('')}
+            <!-- Charts Section -->
+            <div class="chart-container">
+                <h3>📈 Patient Activity Trends</h3>
+                <div class="chart-placeholder">
+                    📊 Interactive charts will be available with Google Sheets integration
                 </div>
             </div>
             
-            <div class="card">
-                <h3>⚙️ System Status</h3>
-                <div class="system-status">
-                    <div class="status-indicator"></div>
-                    <span><strong>Status:</strong> ${data.systemHealth.status}</span>
+            <!-- Recent Activity -->
+            <div class="section">
+                <h3>📋 Recent Activity</h3>
+                ${data.recentActivity.length > 0 ? `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Patient Name</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.recentActivity.map(activity => `
+                            <tr>
+                                <td>${activity.type}</td>
+                                <td>${activity.name}</td>
+                                <td>${activity.time}</td>
+                                <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ` : `
+                <div class="empty-state">
+                    No recent activity to display
                 </div>
-                <div class="system-status">
-                    <div class="status-indicator"></div>
-                    <span><strong>Uptime:</strong> ${data.systemHealth.uptime}</span>
-                </div>
-                <div class="system-status">
-                    <div class="status-indicator"></div>
-                    <span><strong>Last Backup:</strong> ${data.systemHealth.lastBackup}</span>
-                </div>
-                <div class="system-status">
-                    <div class="status-indicator"></div>
-                    <span><strong>API Status:</strong> ${data.systemHealth.apiStatus}</span>
-                </div>
+                `}
             </div>
             
-            <div style="text-align: center;">
-                <button class="refresh-btn" onclick="window.location.reload()">🔄 Refresh Dashboard</button>
+            <!-- Upcoming Appointments -->
+            <div class="section">
+                <h3>📅 Upcoming Appointments</h3>
+                ${data.upcomingAppointments.length > 0 ? `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.upcomingAppointments.map(appointment => `
+                            <tr>
+                                <td>${appointment.patient}</td>
+                                <td>${appointment.time}</td>
+                                <td>${appointment.type}</td>
+                                <td><span class="status-badge status-${appointment.status}">${appointment.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ` : `
+                <div class="empty-state">
+                    No upcoming appointments scheduled
+                </div>
+                `}
+            </div>
+            
+            <!-- System Health -->
+            <div class="section">
+                <h3>⚙️ System Health & Performance</h3>
+                <div class="metric-row">
+                    <span class="metric-label">System Status</span>
+                    <span class="metric-value">${data.systemHealth.status}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Uptime</span>
+                    <span class="metric-value">${data.systemHealth.uptime}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Last Data Backup</span>
+                    <span class="metric-value">${data.systemHealth.lastBackup}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">API Status</span>
+                    <span class="metric-value">${data.systemHealth.apiStatus}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Data Mode</span>
+                    <span class="metric-value">${data.message.includes('TEST MODE') ? 'Test Mode (Real Data)' : 'Production Mode'}</span>
+                </div>
             </div>
         </div>
         
         <div class="footer">
+            <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Dashboard</button>
             <p>Last updated: ${new Date(data.stats.lastUpdated).toLocaleString()}</p>
-            <p>myPCP Internal Medicine Clinic - Miami, FL</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">
+                myPCP Clinic Automation System | 
+                <a href="/" style="color: #3CB6AD; text-decoration: none;">Patient Form</a> | 
+                <a href="/health" style="color: #3CB6AD; text-decoration: none;">System Health</a>
+            </p>
         </div>
     </div>
 </body>
