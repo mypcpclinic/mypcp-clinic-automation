@@ -84,7 +84,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public folder is needed for our patient forms
 
 # Storybook build outputs
 .out

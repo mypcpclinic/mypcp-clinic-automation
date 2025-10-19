@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Intake Form - myPCP Internal Medicine Clinic</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #F9F5E9;
+            color: #1E1E1E;
+        }
+        .form-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(46, 140, 131, 0.1);
+            border: 1px solid rgba(60, 182, 173, 0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-image {
+            height: 80px;
+            width: auto;
+        }
+        .logo-fallback {
+            height: 80px;
+            width: 80px;
+            background-color: #3CB6AD;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F9F5E9;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .logo-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3CB6AD;
+            letter-spacing: -1px;
+        }
+        .logo-text .my {
+            font-size: 24px;
+            color: #2E8C83;
+        }
+        .clinic-name {
+            color: #2E8C83;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .welcome-text {
+            color: #1E1E1E;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .form-group { 
+            margin-bottom: 25px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #1E1E1E;
+            font-size: 14px;
+        }
+        input, textarea, select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #E0E0E0; 
+            border-radius: 8px; 
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #F9F5E9;
+            color: #1E1E1E;
+            transition: all 0.3s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #3CB6AD;
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(60, 182, 173, 0.1);
+        }
+        .required { 
+            color: #E74C3C; 
+        }
+        .submit-btn { 
+            background: linear-gradient(135deg, #3CB6AD 0%, #2E8C83 100%);
+            color: white; 
+            padding: 18px 40px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .submit-btn:hover { 
+            background: linear-gradient(135deg, #2E8C83 0%, #3CB6AD 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(60, 182, 173, 0.3);
+        }
+        .section { 
+            margin: 35px 0; 
+            padding: 25px; 
+            border: 2px solid rgba(60, 182, 173, 0.1); 
+            border-radius: 12px; 
+            background: linear-gradient(135deg, #F9F5E9 0%, rgba(60, 182, 173, 0.05) 100%);
+        }
+        .section h3 { 
+            margin-top: 0; 
+            color: #2E8C83; 
+            border-bottom: 3px solid #3CB6AD;
+            padding-bottom: 12px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .success-message {
+            background: linear-gradient(135deg, #D4EDDA 0%, #C3E6CB 100%);
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: none;
+            border-left: 5px solid #28A745;
+        }
+        .error-message {
+            background: linear-gradient(135deg, #F8D7DA 0%, #F5C6CB 100%);
+            color: #721C24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: none;
+            border-left: 5px solid #DC3545;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #3CB6AD;
+            font-weight: 600;
+        }
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(60, 182, 173, 0.1);
+            color: #2E8C83;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <div class="logo">
+                <img src="logo.png" alt="myPCP Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback" style="display: none;">🏥</div>
+            </div>
+            <div class="clinic-name">Internal Medicine Clinic</div>
+            <h2 style="color: #1E1E1E; margin: 20px 0 10px 0; font-size: 28px; font-weight: 700;">Patient Intake Form</h2>
+            <p class="welcome-text">Welcome to myPCP. Please fill out this form to help us prepare for your visit and provide you with the best possible care.</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            ✅ Thank you! Your intake form has been submitted successfully. You will receive a confirmation email shortly.
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            ❌ There was an error submitting your form. Please try again or contact us directly.
+        </div>
+        
+        <div class="loading" id="loadingMessage">
+            📋 Processing your form...
+        </div>
+        
+        <form id="intakeForm" action="/test-form" method="POST">
+            <div class="section">
+                <h3>👤 Personal Information</h3>
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth <span class="required">*</span></label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" placeholder="Street Address">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🏥 Medical Information</h3>
+                <div class="form-group">
+                    <label for="reasonForVisit">Reason for Visit <span class="required">*</span></label>
+                    <textarea id="reasonForVisit" name="reasonForVisit" rows="4" required placeholder="Please describe your symptoms, concerns, or reason for the visit..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="currentMedications">Current Medications</label>
+                    <textarea id="currentMedications" name="currentMedications" rows="3" placeholder="List all medications you are currently taking, including dosages..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="allergies">Allergies</label>
+                    <textarea id="allergies" name="allergies" rows="2" placeholder="List any allergies to medications, foods, or other substances..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pastConditions">Past Medical Conditions</label>
+                    <textarea id="pastConditions" name="pastConditions" rows="3" placeholder="List any past or current medical conditions..."></textarea>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>💳 Insurance Information</h3>
+                <div class="form-group">
+                    <label for="insuranceProvider">Insurance Provider</label>
+                    <input type="text" id="insuranceProvider" name="insuranceProvider" placeholder="e.g., Blue Cross Blue Shield">
+                </div>
+                <div class="form-group">
+                    <label for="insuranceId">Insurance ID/Policy Number</label>
+                    <input type="text" id="insuranceId" name="insuranceId" placeholder="Your insurance policy number">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🚨 Emergency Contact</h3>
+                <div class="form-group">
+                    <label for="emergencyContact">Emergency Contact Name</label>
+                    <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full name of emergency contact">
+                </div>
+                <div class="form-group">
+                    <label for="emergencyPhone">Emergency Contact Phone</label>
+                    <input type="tel" id="emergencyPhone" name="emergencyPhone" placeholder="Phone number of emergency contact">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes</label>
+                <textarea id="additionalNotes" name="additionalNotes" rows="3" placeholder="Any additional information you'd like to share with your doctor..."></textarea>
+            </div>
+
+        <button type="submit" class="submit-btn">📋 Submit Intake Form</button>
+    </form>
+    
+    <div class="form-footer">
+        <p><strong>myPCP Internal Medicine Clinic</strong></p>
+        <p>Providing compassionate, comprehensive healthcare for you and your family</p>
+        <p style="margin-top: 15px; font-size: 12px; color: #2E8C83;">
+            This form is secure and HIPAA compliant. Your information is protected and will only be used for your medical care.
+        </p>
+    </div>
+</div>
+
+    <script>
+        // Auto-populate appointment info from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentDate = urlParams.get('appointment_date');
+        const appointmentTime = urlParams.get('appointment_time');
+        
+        if (appointmentDate) {
+            const dateInput = document.createElement('input');
+            dateInput.type = 'hidden';
+            dateInput.name = 'appointmentDate';
+            dateInput.value = appointmentDate;
+            document.getElementById('intakeForm').appendChild(dateInput);
+        }
+        
+        if (appointmentTime) {
+            const timeInput = document.createElement('input');
+            timeInput.type = 'hidden';
+            timeInput.name = 'appointmentTime';
+            timeInput.value = appointmentTime;
+            document.getElementById('intakeForm').appendChild(timeInput);
+        }
+
+        // Form submission handling
+        document.getElementById('intakeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading message
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Submit form
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                document.getElementById('loadingMessage').style.display = 'none';
+                
+                if (response.ok) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    this.reset();
+                } else {
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
+            }
+            e.target.value = value;
+        });
+
+        document.getElementById('emergencyPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
