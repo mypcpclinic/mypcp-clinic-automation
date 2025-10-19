@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  clinic-automation:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - clinic-network
+
+  # Optional: Add a reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - clinic-automation
+    restart: unless-stopped
+    networks:
+      - clinic-network
+
+  # Optional: Add a database for advanced features
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: clinic_automation
+      POSTGRES_USER: clinic
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    networks:
+      - clinic-network
+
+  # Optional: Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - clinic-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  clinic-network:
+    driver: bridge
