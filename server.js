@@ -1230,7 +1230,7 @@ function generateDashboardHTML(data) {
                                 ${data.todayPatients.map(patient => `
                                     <tr>
                                         <td>${patient.id}</td>
-                                        <td><span onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}')" style="color: #3CB6AD; text-decoration: none; font-weight: 500; cursor: pointer;">${patient.name}</span></td>
+                                        <td><span onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}', '${patient.email || 'N/A'}', '${patient.phone || 'N/A'}', '${patient.reasonForVisit || 'N/A'}')" style="color: #3CB6AD; text-decoration: none; font-weight: 500; cursor: pointer;">${patient.name}</span></td>
                                         <td>${new Date(patient.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
                                         <td><span class="status-badge status-${patient.status}">${patient.status}</span></td>
                                     </tr>
@@ -1263,7 +1263,7 @@ function generateDashboardHTML(data) {
                                         <div class="history-patients">
                                             ${day.patients.map(patient => `
                                                 <div class="history-patient">
-                                                    <div class="patient-link" onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}')" style="color: #3CB6AD; text-decoration: none; cursor: pointer;">
+                                                    <div class="patient-link" onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}', '${patient.email || 'N/A'}', '${patient.phone || 'N/A'}', '${patient.reasonForVisit || 'N/A'}')" style="color: #3CB6AD; text-decoration: none; cursor: pointer;">
                                                         ${patient.name} (ID: ${patient.id})
                                                     </div>
                                                 </div>
@@ -1381,7 +1381,7 @@ function generateDashboardHTML(data) {
         }, 30000);
         
         // Show patient details in modal
-        function showPatientDetails(id, name, timestamp, status) {
+        function showPatientDetails(id, name, timestamp, status, email, phone, reasonForVisit) {
             const modal = document.getElementById('patientModal');
             const modalBody = document.getElementById('patientModalBody');
             
@@ -1394,13 +1394,25 @@ function generateDashboardHTML(data) {
                         '<strong>Name:</strong> ' + name +
                     '</div>' +
                     '<div class="detail-row">' +
+                        '<strong>Email:</strong> ' + email +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Phone:</strong> ' + phone +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Reason for Visit:</strong> ' + reasonForVisit +
+                    '</div>' +
+                    '<div class="detail-row">' +
                         '<strong>Status:</strong> <span class="status-badge status-' + status + '">' + status + '</span>' +
                     '</div>' +
                     '<div class="detail-row">' +
                         '<strong>Submitted:</strong> ' + new Date(timestamp).toLocaleString() +
                     '</div>' +
                     '<div class="detail-row">' +
-                        '<strong>Note:</strong> Full patient details are available in the system. This is a summary view.' +
+                        '<strong>Note:</strong> This is a summary view. Full patient details are stored in the system.' +
+                    '</div>' +
+                    '<div class="detail-row" style="margin-top: 15px; text-align: center;">' +
+                        '<button onclick="viewFullPatientDetails(' + id + ')" class="btn" style="background: #3CB6AD; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">View Full Details</button>' +
                     '</div>' +
                 '</div>';
             
@@ -1410,6 +1422,22 @@ function generateDashboardHTML(data) {
         // Close patient modal
         function closePatientModal() {
             document.getElementById('patientModal').style.display = 'none';
+        }
+        
+        // View full patient details
+        function viewFullPatientDetails(patientId) {
+            // Try to open the patient details page
+            const patientUrl = '/patient/' + patientId;
+            
+            // Open in new tab
+            const newWindow = window.open(patientUrl, '_blank');
+            
+            // If the window fails to open or shows an error, show a message
+            setTimeout(function() {
+                if (newWindow && newWindow.closed) {
+                    alert('Patient details page is not available. This may be due to serverless function limitations. The patient information is stored in the system.');
+                }
+            }, 1000);
         }
         
         // Close modal when clicking outside
