@@ -1075,7 +1075,9 @@ function generateDashboardHTML(data) {
             <div class="header-content">
                 <div class="logo-section">
                     <img src="/public/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="logo-fallback" style="display: none;">🏥</div>
+                    <div class="logo-fallback" style="display: none;">
+                        <div style="background: #3CB6AD; color: white; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">myPCP</div>
+                    </div>
                     <div class="clinic-info">
                         <h1>Internal Medicine Clinic</h1>
                         <p>Miami, FL • (305) 555-0123</p>
