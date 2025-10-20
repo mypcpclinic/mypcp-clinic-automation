@@ -510,20 +510,35 @@ app.get('/patient/:id', async (req, res) => {
 // Excel export endpoints
 app.get('/export/excel', async (req, res) => {
   try {
-    const data = await dataService.loadData();
-    const allPatients = data.formSubmissions || [];
+    const excelFile = excelService.getCurrentExcelFile();
     
-    if (allPatients.length === 0) {
-      return res.status(404).json({ error: 'No patient data found' });
+    if (!excelFile.buffer) {
+      // If no Excel file exists, generate one from current data
+      const data = await dataService.loadData();
+      const allPatients = data.formSubmissions || [];
+      
+      if (allPatients.length === 0) {
+        return res.status(404).json({ error: 'No patient data found' });
+      }
+      
+      const excelBuffer = excelService.generateExcelFile(allPatients);
+      excelService.excelBuffer = excelBuffer;
+      excelService.lastUpdated = new Date();
+      excelService.patientCount = allPatients.length;
+      
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
+      res.send(excelBuffer);
+      
+      logger.info(`Excel export completed: ${allPatients.length} patients`);
+    } else {
+      // Use the existing Excel file
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
+      res.send(excelFile.buffer);
+      
+      logger.info(`Excel export completed: ${excelFile.patientCount} patients (last updated: ${excelFile.lastUpdated})`);
     }
-    
-    const excelBuffer = excelService.generateExcelFile(allPatients);
-    
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
-    res.send(excelBuffer);
-    
-    logger.info(`Excel export completed: ${allPatients.length} patients`);
   } catch (error) {
     logger.error('Error exporting Excel file:', error);
     res.status(500).json({ error: 'Failed to export Excel file' });
@@ -549,6 +564,25 @@ app.get('/export/daily-excel', async (req, res) => {
   } catch (error) {
     logger.error('Error exporting daily Excel file:', error);
     res.status(500).json({ error: 'Failed to export daily Excel file' });
+  }
+});
+
+// Excel file status endpoint
+app.get('/excel-status', async (req, res) => {
+  try {
+    const excelFile = excelService.getCurrentExcelFile();
+    
+    res.json({
+      hasExcelFile: !!excelFile.buffer,
+      patientCount: excelFile.patientCount,
+      lastUpdated: excelFile.lastUpdated,
+      message: excelFile.buffer ? 
+        `Excel file ready with ${excelFile.patientCount} patients` : 
+        'No Excel file generated yet'
+    });
+  } catch (error) {
+    logger.error('Error getting Excel status:', error);
+    res.status(500).json({ error: 'Failed to get Excel status' });
   }
 });
 
@@ -1271,7 +1305,10 @@ function generateDashboardHTML(data) {
                         <a href="/export/daily-excel" style="background: #17a2b8; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">📅 Export Daily Data</a>
                     </div>
                     <div style="margin-top: 10px; padding: 8px 12px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; color: #155724; font-size: 14px;">
-                        ✅ <strong>Auto-Export:</strong> All form submissions are automatically saved and available for Excel export
+                        ✅ <strong>Auto-Update Excel:</strong> Excel file updates automatically with every new patient - no need to download multiple files!
+                    </div>
+                    <div id="excelStatus" style="margin-top: 8px; padding: 8px 12px; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; color: #0066cc; font-size: 14px;">
+                        📊 <strong>Excel Status:</strong> Loading...
                     </div>
                 </div>
             </div>
@@ -1476,6 +1513,33 @@ function generateDashboardHTML(data) {
         setInterval(function() {
             location.reload();
         }, 30000);
+        
+        // Update Excel status
+        function updateExcelStatus() {
+            fetch('/excel-status')
+                .then(response => response.json())
+                .then(data => {
+                    const statusDiv = document.getElementById('excelStatus');
+                    if (data.hasExcelFile) {
+                        statusDiv.innerHTML = \`📊 <strong>Excel Status:</strong> Ready with \${data.patientCount} patients (Updated: \${new Date(data.lastUpdated).toLocaleString()})\`;
+                        statusDiv.style.background = '#d4edda';
+                        statusDiv.style.borderColor = '#c3e6cb';
+                        statusDiv.style.color = '#155724';
+                    } else {
+                        statusDiv.innerHTML = '📊 <strong>Excel Status:</strong> No data yet - submit a form to create Excel file';
+                        statusDiv.style.background = '#fff3cd';
+                        statusDiv.style.borderColor = '#ffeaa7';
+                        statusDiv.style.color = '#856404';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Excel status:', error);
+                });
+        }
+        
+        // Update Excel status on page load and every 10 seconds
+        updateExcelStatus();
+        setInterval(updateExcelStatus, 10000);
         
         // Show patient details in modal
         function showPatientDetails(id, name, timestamp, status, email, phone, reasonForVisit) {

@@ -17,6 +17,11 @@ class ExcelService {
       defaultMeta: { service: 'excel-service' },
       transports: transports
     });
+
+    // In-memory storage for the Excel file (since Vercel is serverless)
+    this.excelBuffer = null;
+    this.lastUpdated = null;
+    this.patientCount = 0;
   }
 
   /**
@@ -107,16 +112,42 @@ class ExcelService {
    */
   async addPatientToExcel(patientData) {
     try {
-      // For now, we'll store the data and create Excel files on demand
-      // In a real implementation, you might want to use a database or file storage
-      this.logger.info(`Patient data prepared for Excel export: ${patientData.fullName}`);
+      this.logger.info(`Adding patient to Excel file: ${patientData.fullName}`);
       
-      // Return success - the data will be included in the next export
-      return { success: true, message: 'Patient data added to Excel export queue' };
+      // Get current data from data service
+      const DataService = require('./dataService');
+      const dataService = new DataService();
+      const data = await dataService.loadData();
+      const allPatients = data.formSubmissions || [];
+      
+      // Update the Excel file with all current data
+      this.excelBuffer = this.generateExcelFile(allPatients);
+      this.lastUpdated = new Date();
+      this.patientCount = allPatients.length;
+      
+      this.logger.info(`Excel file updated with ${allPatients.length} patients`);
+      
+      return { 
+        success: true, 
+        message: 'Patient data added to Excel file',
+        patientCount: allPatients.length,
+        lastUpdated: this.lastUpdated
+      };
     } catch (error) {
       this.logger.error('Error adding patient to Excel:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get the current Excel file buffer
+   */
+  getCurrentExcelFile() {
+    return {
+      buffer: this.excelBuffer,
+      lastUpdated: this.lastUpdated,
+      patientCount: this.patientCount
+    };
   }
 
   /**
