@@ -1692,7 +1692,7 @@ function generatePatientDetailsHTML(patient) {
                 
                 <div class="content">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <button onclick="copyAllPatientInfo()" class="copy-all-btn">
+                        <button onclick="copyAllPatientInfo(this)" class="copy-all-btn">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
                             </svg>
@@ -1706,35 +1706,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Full Name:</span>
                                 <span class="info-value">
                                     ${patient.fullName || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeFullName}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeFullName}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Date of Birth:</span>
                                 <span class="info-value">
                                     ${patient.dateOfBirth || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeDateOfBirth}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeDateOfBirth}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Gender:</span>
                                 <span class="info-value">
                                     ${patient.gender || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeGender}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeGender}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Phone:</span>
                                 <span class="info-value">
                                     ${patient.phone || 'N/A'}
-                                    <button onclick="copyToClipboard('${safePhone}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePhone}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Email:</span>
                                 <span class="info-value">
                                     ${patient.email || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeEmail}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeEmail}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1745,35 +1745,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Address:</span>
                                 <span class="info-value">
                                     ${patient.address || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeAddress}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeAddress}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">City:</span>
                                 <span class="info-value">
                                     ${patient.city || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeCity}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeCity}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">State:</span>
                                 <span class="info-value">
                                     ${patient.state || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeState}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeState}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">ZIP Code:</span>
                                 <span class="info-value">
                                     ${patient.zipCode || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeZipCode}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeZipCode}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Emergency Contact:</span>
                                 <span class="info-value">
                                     ${patient.emergencyContact || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeEmergencyContact}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeEmergencyContact}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1786,35 +1786,35 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Insurance Provider:</span>
                                 <span class="info-value">
                                     ${patient.insuranceProvider || 'N/A'}
-                                    <button onclick="copyToClipboard('${safeInsuranceProvider}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeInsuranceProvider}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Policy Number:</span>
                                 <span class="info-value">
                                     ${patient.policyNumber || 'N/A'}
-                                    <button onclick="copyToClipboard('${safePolicyNumber}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePolicyNumber}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Primary Care Physician:</span>
                                 <span class="info-value">
                                     ${patient.primaryCarePhysician || 'N/A'}
-                                    <button onclick="copyToClipboard('${safePrimaryCarePhysician}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safePrimaryCarePhysician}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Current Medications:</span>
                                 <span class="info-value">
                                     ${patient.currentMedications || 'None'}
-                                    <button onclick="copyToClipboard('${safeCurrentMedications}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeCurrentMedications}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Allergies:</span>
                                 <span class="info-value">
                                     ${patient.allergies || 'None'}
-                                    <button onclick="copyToClipboard('${safeAllergies}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeAllergies}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                 </div>
@@ -1825,21 +1825,21 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Status:</span>
                                 <span class="info-value">
                                     <span class="status-badge status-${patient.status}">${patient.status}</span>
-                                    <button onclick="copyToClipboard('${patient.status}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${patient.status}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Submitted:</span>
                                 <span class="info-value">
                                     ${new Date(patient.timestamp).toLocaleString()}
-                                    <button onclick="copyToClipboard('${new Date(patient.timestamp).toLocaleString()}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${new Date(patient.timestamp).toLocaleString()}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Type:</span>
                                 <span class="info-value">
                                     ${isFormSubmission ? 'Intake Form' : 'Patient Record'}
-                                    <button onclick="copyToClipboard('${isFormSubmission ? 'Intake Form' : 'Patient Record'}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${isFormSubmission ? 'Intake Form' : 'Patient Record'}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ${patient.reasonForVisit ? `
@@ -1847,7 +1847,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Reason for Visit:</span>
                                 <span class="info-value">
                                     ${patient.reasonForVisit}
-                                    <button onclick="copyToClipboard('${safeReasonForVisit}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeReasonForVisit}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
@@ -1856,7 +1856,7 @@ function generatePatientDetailsHTML(patient) {
                                 <span class="info-label">Medical History:</span>
                                 <span class="info-value">
                                     ${patient.medicalHistory}
-                                    <button onclick="copyToClipboard('${safeMedicalHistory}')" class="copy-btn">${copyIcon}</button>
+                                    <button onclick="copyToClipboard('${safeMedicalHistory}', this)" class="copy-btn">${copyIcon}</button>
                                 </span>
                             </div>
                             ` : ''}
@@ -1876,8 +1876,8 @@ function generatePatientDetailsHTML(patient) {
     
     <script>
         // Copy individual field to clipboard
-        function copyToClipboard(text) {
-            const button = event.target.closest('.copy-btn');
+        function copyToClipboard(text, buttonElement) {
+            const button = buttonElement || event.target.closest('.copy-btn');
             const originalHTML = button.innerHTML;
             
             navigator.clipboard.writeText(text).then(function() {
@@ -1912,7 +1912,7 @@ function generatePatientDetailsHTML(patient) {
         }
         
         // Copy all patient information
-        function copyAllPatientInfo() {
+        function copyAllPatientInfo(buttonElement) {
             const patientData = {
                 'Patient ID': '${patient.id}',
                 'Full Name': '${patient.fullName || 'N/A'}',
@@ -1945,7 +1945,7 @@ function generatePatientDetailsHTML(patient) {
             
             navigator.clipboard.writeText(formattedText).then(function() {
                 // Show success feedback
-                const button = event.target;
+                const button = buttonElement;
                 const originalText = button.textContent;
                 button.textContent = '✅ Copied!';
                 button.style.background = '#28a745';
@@ -1966,7 +1966,7 @@ function generatePatientDetailsHTML(patient) {
                 document.body.removeChild(textArea);
                 
                 // Show success feedback
-                const button = event.target;
+                const button = buttonElement;
                 const originalText = button.textContent;
                 button.textContent = '✅ Copied!';
                 button.style.background = '#28a745';
