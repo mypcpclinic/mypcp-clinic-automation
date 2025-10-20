@@ -16,6 +16,7 @@ const EmailService = require('./services/emailService');
 const CalendlyService = require('./services/calendlyService');
 const FormspreeService = require('./services/formspreeService');
 const DataService = require('./services/dataService');
+const ExcelService = require('./services/excelService');
 
 // Import automation modules
 const IntakeWebhook = require('./automations/intakeWebhook');
@@ -235,7 +236,7 @@ app.get('/setup-guide', (req, res) => {
 });
 
 // Initialize services with error handling
-let googleService, aiService, emailService, dataService;
+let googleService, aiService, emailService, dataService, excelService;
 try {
   logger.info('Attempting to initialize Google Service...');
   googleService = new GoogleService();
@@ -243,6 +244,8 @@ try {
   aiService = new AIService();
   emailService = new EmailService();
   dataService = new DataService();
+  excelService = new ExcelService();
+  logger.info('Excel Service initialized successfully');
 } catch (error) {
   logger.error('Error initializing services:', error);
   logger.error('Error details:', error.message);
@@ -258,6 +261,7 @@ try {
   aiService = { summarizeIntake: () => Promise.resolve('Mock summary') };
   emailService = { sendConfirmation: () => Promise.resolve(), sendReminder: () => Promise.resolve() };
   dataService = new DataService(); // Always initialize data service
+  excelService = new ExcelService(); // Always initialize Excel service
 }
 
 // Test mode - works without external APIs
@@ -489,6 +493,51 @@ app.get('/patient/:id', async (req, res) => {
 });
 
 // Force redeploy - patient details route
+
+// Excel export endpoints
+app.get('/export/excel', async (req, res) => {
+  try {
+    const data = await dataService.loadData();
+    const allPatients = data.formSubmissions || [];
+    
+    if (allPatients.length === 0) {
+      return res.status(404).json({ error: 'No patient data found' });
+    }
+    
+    const excelBuffer = excelService.generateExcelFile(allPatients);
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
+    res.send(excelBuffer);
+    
+    logger.info(`Excel export completed: ${allPatients.length} patients`);
+  } catch (error) {
+    logger.error('Error exporting Excel file:', error);
+    res.status(500).json({ error: 'Failed to export Excel file' });
+  }
+});
+
+app.get('/export/daily-excel', async (req, res) => {
+  try {
+    const data = await dataService.loadData();
+    const dailyData = data.dailyPatients || {};
+    
+    if (Object.keys(dailyData).length === 0) {
+      return res.status(404).json({ error: 'No daily patient data found' });
+    }
+    
+    const excelBuffer = excelService.generateDailyExcelFile(dailyData);
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="daily-patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
+    res.send(excelBuffer);
+    
+    logger.info(`Daily Excel export completed: ${Object.keys(dailyData).length} days`);
+  } catch (error) {
+    logger.error('Error exporting daily Excel file:', error);
+    res.status(500).json({ error: 'Failed to export daily Excel file' });
+  }
+});
 
 // Scheduled jobs
 // Run reminder check every hour
@@ -1203,7 +1252,11 @@ function generateDashboardHTML(data) {
                 <div class="dashboard-title">
                     <h2>📊 Clinic Dashboard</h2>
                     <p>Real-time Analytics</p>
-                    <button onclick="showPatientDetails('TEST', 'Test Patient', '2025-10-20T00:00:00.000Z', 'pending', 'test@example.com', '(305) 555-0000', 'Test modal functionality')" style="background: #3CB6AD; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">Test Modal</button>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="showPatientDetails('TEST', 'Test Patient', '2025-10-20T00:00:00.000Z', 'pending', 'test@example.com', '(305) 555-0000', 'Test modal functionality')" style="background: #3CB6AD; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Test Modal</button>
+                        <a href="/export/excel" style="background: #28a745; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">📊 Export All Data</a>
+                        <a href="/export/daily-excel" style="background: #17a2b8; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">📅 Export Daily Data</a>
+                    </div>
                 </div>
             </div>
         </div>
