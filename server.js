@@ -237,6 +237,7 @@ app.get('/setup-guide', (req, res) => {
 // Initialize services with error handling
 let googleService, aiService, emailService, dataService;
 try {
+  logger.info('Attempting to initialize Google Service...');
   googleService = new GoogleService();
   logger.info('Google Service initialized successfully');
   aiService = new AIService();
@@ -244,6 +245,8 @@ try {
   dataService = new DataService();
 } catch (error) {
   logger.error('Error initializing services:', error);
+  logger.error('Error details:', error.message);
+  logger.error('Error stack:', error.stack);
   // Create mock services for test mode
   googleService = { 
     addPatientIntake: () => {
@@ -347,10 +350,12 @@ app.post('/test-form', async (req, res) => {
     // Add to Google Sheets (always try, regardless of test mode)
     if (googleService) {
       try {
+        logger.info('Attempting to add patient data to Google Sheets...');
         await googleService.addPatientIntake(req.body);
         logger.info('Patient data added to Google Sheets successfully');
       } catch (sheetsError) {
         logger.error('Error adding to Google Sheets:', sheetsError);
+        logger.error('Google Sheets error details:', sheetsError.message);
         // Don't fail the request if Google Sheets fails
       }
     } else {
