@@ -343,6 +343,11 @@ app.get('/health', (req, res) => {
   }
 });
 
+// Test form endpoint - GET to serve the form
+app.get('/test-form', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'intake-form.html'));
+});
+
 // Test form submission endpoint
 app.post('/test-form', async (req, res) => {
   try {
