@@ -325,8 +325,8 @@ app.post('/test-form', async (req, res) => {
     // Store the form submission in real data
     const submission = await dataService.addFormSubmission(req.body);
     
-    // Add to Google Sheets if not in test mode
-    if (!TEST_MODE && googleService) {
+    // Add to Google Sheets (always try, regardless of test mode)
+    if (googleService) {
       try {
         await googleService.addPatientIntake(req.body);
         logger.info('Patient data added to Google Sheets successfully');
@@ -334,6 +334,8 @@ app.post('/test-form', async (req, res) => {
         logger.error('Error adding to Google Sheets:', sheetsError);
         // Don't fail the request if Google Sheets fails
       }
+    } else {
+      logger.warn('Google Service not available - data not added to Google Sheets');
     }
     
     res.json({ 
@@ -1382,8 +1384,22 @@ function generateDashboardHTML(data) {
         
         // Show patient details in modal
         function showPatientDetails(id, name, timestamp, status, email, phone, reasonForVisit) {
+            console.log('showPatientDetails called with:', {id, name, email, phone});
+            
             const modal = document.getElementById('patientModal');
             const modalBody = document.getElementById('patientModalBody');
+            
+            if (!modal) {
+                console.error('Modal element not found!');
+                alert('Modal not found. Please refresh the page.');
+                return;
+            }
+            
+            if (!modalBody) {
+                console.error('Modal body element not found!');
+                alert('Modal body not found. Please refresh the page.');
+                return;
+            }
             
             modalBody.innerHTML = 
                 '<div class="patient-details">' +
@@ -1416,7 +1432,9 @@ function generateDashboardHTML(data) {
                     '</div>' +
                 '</div>';
             
+            console.log('Setting modal display to block');
             modal.style.display = 'block';
+            modal.style.zIndex = '9999';
         }
         
         // Close patient modal
