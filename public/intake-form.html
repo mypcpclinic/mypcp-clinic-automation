@@ -351,7 +351,7 @@
         
         <div class="success-actions">
             <a href="/dashboard" class="success-btn">View Dashboard</a>
-            <a href="/patient-form" class="success-btn">Submit Another Form</a>
+            <a href="/test-form" class="success-btn">Submit Another Form</a>
         </div>
     </div>
     
@@ -402,11 +402,16 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
+            .then(response => response.json())
+            .then(data => {
                 document.getElementById('loadingMessage').style.display = 'none';
                 
-                if (response.ok) {
-                    document.getElementById('successMessage').style.display = 'block';
+                if (data.success) {
+                    // Show success message with patient ID
+                    const successMessage = document.getElementById('successMessage');
+                    const successText = successMessage.querySelector('.success-text');
+                    successText.innerHTML = `Thank you for completing your patient intake form. We have received your information and will prepare for your visit.<br><br><strong>Patient ID: ${data.submissionId}</strong><br><a href="/patient/${data.submissionId}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">View Patient Details →</a>`;
+                    successMessage.style.display = 'block';
                     this.reset();
                 } else {
                     document.getElementById('errorMessage').style.display = 'block';
