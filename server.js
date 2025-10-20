@@ -475,11 +475,11 @@ app.get('/dashboard', async (req, res) => {
       stats.message = 'Dashboard (Real Data - Test Mode)';
     }
 
-    // Return HTML dashboard if requested with Accept: text/html
-    if (req.headers.accept && req.headers.accept.includes('text/html')) {
-      res.send(generateDashboardHTML(stats));
-    } else {
+    // Return HTML dashboard by default, JSON only if specifically requested
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
       res.json(stats);
+    } else {
+      res.send(generateDashboardHTML(stats));
     }
   } catch (error) {
     logger.error('Error fetching dashboard stats', { error: error.message });
