@@ -16,6 +16,7 @@ const EmailService = require('./services/emailService');
 const CalendlyService = require('./services/calendlyService');
 const FormspreeService = require('./services/formspreeService');
 const DataService = require('./services/dataService');
+const DatabaseService = require('./services/databaseService');
 const ExcelService = require('./services/excelService');
 
 // Import automation modules
@@ -236,7 +237,7 @@ app.get('/setup-guide', (req, res) => {
 });
 
 // Initialize services with error handling
-let googleService, aiService, emailService, dataService, excelService;
+let googleService, aiService, emailService, dataService, databaseService, excelService;
 try {
   logger.info('Attempting to initialize Google Service...');
   googleService = new GoogleService();
@@ -244,6 +245,7 @@ try {
   aiService = new AIService();
   emailService = new EmailService();
   dataService = new DataService();
+  databaseService = new DatabaseService();
   excelService = new ExcelService();
   logger.info('Excel Service initialized successfully');
 } catch (error) {
@@ -353,8 +355,19 @@ app.post('/test-form', async (req, res) => {
   try {
     logger.info('Test form submission received', { body: req.body });
     
-    // Store the form submission in real data
-    const submission = await dataService.addFormSubmission(req.body);
+    // Store the form submission in database (permanent storage)
+    let submission;
+    if (databaseService) {
+      try {
+        submission = await databaseService.addPatient(req.body);
+        logger.info('Patient data saved to permanent database');
+      } catch (dbError) {
+        logger.error('Database error, falling back to local storage:', dbError);
+        submission = await dataService.addFormSubmission(req.body);
+      }
+    } else {
+      submission = await dataService.addFormSubmission(req.body);
+    }
     
     // Add to Excel export system (automatic)
     if (excelService) {
@@ -462,13 +475,34 @@ app.post('/trigger/weekly-report', async (req, res) => {
 // Dashboard endpoint
 app.get('/dashboard', async (req, res) => {
   try {
-    // Always use real data service for dashboard
-    const stats = await dataService.getDashboardStats();
+    // Use database service if available, otherwise fall back to local data
+    let stats, todayPatients, dailyHistory, todayPatientCount;
     
-    // Add daily patient data
-    stats.todayPatients = dataService.getDailyPatients();
-    stats.dailyHistory = dataService.getDailyPatientHistory(7);
-    stats.todayPatientCount = dataService.getDailyPatientCount();
+    if (databaseService) {
+      try {
+        stats = await databaseService.getDashboardStats();
+        todayPatients = await databaseService.getTodayPatients();
+        dailyHistory = await databaseService.getDailyPatientHistory(7);
+        todayPatientCount = stats.todayPatientCount;
+        logger.info('Dashboard data loaded from permanent database');
+      } catch (dbError) {
+        logger.error('Database error, falling back to local storage:', dbError);
+        stats = await dataService.getDashboardStats();
+        todayPatients = dataService.getDailyPatients();
+        dailyHistory = dataService.getDailyPatientHistory(7);
+        todayPatientCount = dataService.getDailyPatientCount();
+      }
+    } else {
+      stats = await dataService.getDashboardStats();
+      todayPatients = dataService.getDailyPatients();
+      dailyHistory = dataService.getDailyPatientHistory(7);
+      todayPatientCount = dataService.getDailyPatientCount();
+    }
+    
+    // Add the data to stats object
+    stats.todayPatients = todayPatients;
+    stats.dailyHistory = dailyHistory;
+    stats.todayPatientCount = todayPatientCount;
     
     // Add test mode indicator if in test mode
     if (TEST_MODE) {
@@ -491,7 +525,19 @@ app.get('/dashboard', async (req, res) => {
 app.get('/patient/:id', async (req, res) => {
   try {
     const patientId = req.params.id;
-    const patient = await dataService.getPatientById(patientId);
+    let patient;
+    
+    if (databaseService) {
+      try {
+        patient = await databaseService.getPatientById(patientId);
+        logger.info(`Patient ${patientId} retrieved from permanent database`);
+      } catch (dbError) {
+        logger.error('Database error, falling back to local storage:', dbError);
+        patient = await dataService.getPatientById(patientId);
+      }
+    } else {
+      patient = await dataService.getPatientById(patientId);
+    }
     
     if (!patient) {
       return res.status(404).json({ error: 'Patient not found' });
@@ -515,35 +561,34 @@ app.get('/patient/:id', async (req, res) => {
 // Excel export endpoints
 app.get('/export/excel', async (req, res) => {
   try {
-    const excelFile = excelService.getCurrentExcelFile();
+    let allPatients = [];
     
-    if (!excelFile.buffer) {
-      // If no Excel file exists, generate one from current data
-      const data = await dataService.loadData();
-      const allPatients = data.formSubmissions || [];
-      
-      if (allPatients.length === 0) {
-        return res.status(404).json({ error: 'No patient data found' });
+    // Get data from database if available, otherwise from local storage
+    if (databaseService) {
+      try {
+        allPatients = await databaseService.getAllPatients();
+        logger.info(`Excel export: Retrieved ${allPatients.length} patients from permanent database`);
+      } catch (dbError) {
+        logger.error('Database error, falling back to local storage:', dbError);
+        const data = await dataService.loadData();
+        allPatients = data.formSubmissions || [];
       }
-      
-      const excelBuffer = excelService.generateExcelFile(allPatients);
-      excelService.excelBuffer = excelBuffer;
-      excelService.lastUpdated = new Date();
-      excelService.patientCount = allPatients.length;
-      
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
-      res.send(excelBuffer);
-      
-      logger.info(`Excel export completed: ${allPatients.length} patients`);
     } else {
-      // Use the existing Excel file
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
-      res.send(excelFile.buffer);
-      
-      logger.info(`Excel export completed: ${excelFile.patientCount} patients (last updated: ${excelFile.lastUpdated})`);
+      const data = await dataService.loadData();
+      allPatients = data.formSubmissions || [];
     }
+    
+    if (allPatients.length === 0) {
+      return res.status(404).json({ error: 'No patient data found' });
+    }
+    
+    const excelBuffer = excelService.generateExcelFile(allPatients);
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`);
+    res.send(excelBuffer);
+    
+    logger.info(`Excel export completed: ${allPatients.length} patients from permanent database`);
   } catch (error) {
     logger.error('Error exporting Excel file:', error);
     res.status(500).json({ error: 'Failed to export Excel file' });
