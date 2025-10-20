@@ -1074,7 +1074,7 @@ function generateDashboardHTML(data) {
         <div class="header">
             <div class="header-content">
                 <div class="logo-section">
-                    <img src="/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <img src="/public/logo.png" alt="myPCP Clinic Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="logo-fallback" style="display: none;">🏥</div>
                     <div class="clinic-info">
                         <h1>Internal Medicine Clinic</h1>
