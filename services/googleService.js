@@ -3,6 +3,20 @@ const winston = require('winston');
 
 class GoogleService {
   constructor() {
+    // Configure logging for Vercel environment
+    const transports = [
+      new winston.transports.Console()
+    ];
+    
+    // Only add file transport if not in Vercel
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      try {
+        transports.push(new winston.transports.File({ filename: './logs/google-service.log' }));
+      } catch (error) {
+        // File system not available, continue with console only
+      }
+    }
+    
     this.logger = winston.createLogger({
       level: 'info',
       format: winston.format.combine(
@@ -10,10 +24,7 @@ class GoogleService {
         winston.format.json()
       ),
       defaultMeta: { service: 'google-service' },
-      transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: './logs/google-service.log' })
-      ]
+      transports: transports
     });
 
     // Use Service Account authentication if available, otherwise fall back to OAuth
