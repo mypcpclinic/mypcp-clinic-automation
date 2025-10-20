@@ -1,10 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 
+// Global data store for Vercel (persists within the same function instance)
+let globalClinicData = null;
+
 class DataService {
   constructor() {
     this.dataFile = path.join(__dirname, '..', 'data', 'clinicData.json');
     this.data = null;
+    this.isVercel = process.env.VERCEL === '1';
   }
 
   generateShortId() {
@@ -15,6 +19,30 @@ class DataService {
   }
 
   async loadData() {
+    // In Vercel, we can't persist data to files, so we use a global data store
+    if (this.isVercel) {
+      if (!globalClinicData) {
+        globalClinicData = {
+          patients: [],
+          appointments: [],
+          formSubmissions: [],
+          dailyPatients: {},
+          lastUpdated: new Date().toISOString(),
+          stats: {
+            totalPatients: 0,
+            newPatientsThisMonth: 0,
+            upcomingAppointments: 0,
+            pendingIntakes: 0,
+            completedAppointments: 0,
+            averageWaitTime: "0 minutes"
+          }
+        };
+      }
+      this.data = globalClinicData;
+      return this.data;
+    }
+
+    // For non-Vercel environments, use file-based storage
     try {
       const data = await fs.readFile(this.dataFile, 'utf8');
       this.data = JSON.parse(data);
@@ -50,6 +78,14 @@ class DataService {
   async saveData() {
     try {
       this.data.lastUpdated = new Date().toISOString();
+      
+      // In Vercel, we can't write to files, so we just update the global data store
+      if (this.isVercel) {
+        globalClinicData = this.data;
+        return;
+      }
+      
+      // For non-Vercel environments, write to file
       await fs.writeFile(this.dataFile, JSON.stringify(this.data, null, 2));
     } catch (error) {
       console.error('Error saving data:', error);
