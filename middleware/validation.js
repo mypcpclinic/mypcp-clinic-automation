@@ -2,6 +2,19 @@ const Joi = require('joi');
 const winston = require('winston');
 
 // Configure logger for validation middleware
+const transports = [
+  new winston.transports.Console()
+];
+
+// Only add file transport in development (not in Vercel)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  try {
+    transports.push(new winston.transports.File({ filename: './logs/validation.log' }));
+  } catch (error) {
+    // File system not available, continue with console only
+  }
+}
+
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
@@ -9,10 +22,7 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: 'validation' },
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: './logs/validation.log' })
-  ]
+  transports: transports
 });
 
 /**
