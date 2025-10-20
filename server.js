@@ -1385,25 +1385,24 @@ function generateDashboardHTML(data) {
             const modal = document.getElementById('patientModal');
             const modalBody = document.getElementById('patientModalBody');
             
-            modalBody.innerHTML = `
-                <div class="patient-details">
-                    <div class="detail-row">
-                        <strong>Patient ID:</strong> ${id}
-                    </div>
-                    <div class="detail-row">
-                        <strong>Name:</strong> ${name}
-                    </div>
-                    <div class="detail-row">
-                        <strong>Status:</strong> <span class="status-badge status-${status}">${status}</span>
-                    </div>
-                    <div class="detail-row">
-                        <strong>Submitted:</strong> ${new Date(timestamp).toLocaleString()}
-                    </div>
-                    <div class="detail-row">
-                        <strong>Note:</strong> Full patient details are available in the system. This is a summary view.
-                    </div>
-                </div>
-            `;
+            modalBody.innerHTML = 
+                '<div class="patient-details">' +
+                    '<div class="detail-row">' +
+                        '<strong>Patient ID:</strong> ' + id +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Name:</strong> ' + name +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Status:</strong> <span class="status-badge status-' + status + '">' + status + '</span>' +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Submitted:</strong> ' + new Date(timestamp).toLocaleString() +
+                    '</div>' +
+                    '<div class="detail-row">' +
+                        '<strong>Note:</strong> Full patient details are available in the system. This is a summary view.' +
+                    '</div>' +
+                '</div>';
             
             modal.style.display = 'block';
         }
