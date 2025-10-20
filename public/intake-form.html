@@ -410,7 +410,7 @@
                     // Show success message with patient ID
                     const successMessage = document.getElementById('successMessage');
                     const successText = successMessage.querySelector('.success-text');
-                    successText.innerHTML = `Thank you for completing your patient intake form. We have received your information and will prepare for your visit.<br><br><strong>Patient ID: ${data.submissionId}</strong><br><a href="/patient/${data.submissionId}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">View Patient Details →</a>`;
+                    successText.innerHTML = `Thank you for completing your patient intake form. We have received your information and will prepare for your visit.<br><br><strong>Patient ID: ${data.submissionId}</strong><br><br>📊 <strong>Your data has been saved and is available for Excel export!</strong><br><a href="/patient/${data.submissionId}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">View Patient Details →</a>`;
                     successMessage.style.display = 'block';
                     this.reset();
                 } else {

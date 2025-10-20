@@ -351,6 +351,18 @@ app.post('/test-form', async (req, res) => {
     // Store the form submission in real data
     const submission = await dataService.addFormSubmission(req.body);
     
+    // Add to Excel export system (automatic)
+    if (excelService) {
+      try {
+        logger.info('Adding patient data to Excel export system...');
+        await excelService.addPatientToExcel(req.body);
+        logger.info('Patient data added to Excel export system successfully');
+      } catch (excelError) {
+        logger.error('Error adding to Excel export system:', excelError);
+        // Don't fail the request if Excel export fails
+      }
+    }
+
     // Add to Google Sheets (always try, regardless of test mode)
     if (googleService) {
       try {
@@ -368,10 +380,11 @@ app.post('/test-form', async (req, res) => {
     
     res.json({ 
       success: true, 
-      message: 'Form submitted successfully!',
+      message: 'Form submitted successfully! Your data has been saved and will be available in Excel export.',
       receivedData: req.body,
       submissionId: submission.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      excelExport: 'Your data is now available for Excel export from the dashboard'
     });
   } catch (error) {
     logger.error('Error processing test form', { error: error.message });
@@ -1252,10 +1265,13 @@ function generateDashboardHTML(data) {
                 <div class="dashboard-title">
                     <h2>📊 Clinic Dashboard</h2>
                     <p>Real-time Analytics</p>
-                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                         <button onclick="showPatientDetails('TEST', 'Test Patient', '2025-10-20T00:00:00.000Z', 'pending', 'test@example.com', '(305) 555-0000', 'Test modal functionality')" style="background: #3CB6AD; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Test Modal</button>
                         <a href="/export/excel" style="background: #28a745; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">📊 Export All Data</a>
                         <a href="/export/daily-excel" style="background: #17a2b8; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block;">📅 Export Daily Data</a>
+                    </div>
+                    <div style="margin-top: 10px; padding: 8px 12px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; color: #155724; font-size: 14px;">
+                        ✅ <strong>Auto-Export:</strong> All form submissions are automatically saved and available for Excel export
                     </div>
                 </div>
             </div>

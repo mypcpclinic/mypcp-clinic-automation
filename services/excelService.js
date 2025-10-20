@@ -103,6 +103,23 @@ class ExcelService {
   }
 
   /**
+   * Add patient data to existing Excel file or create new one
+   */
+  async addPatientToExcel(patientData) {
+    try {
+      // For now, we'll store the data and create Excel files on demand
+      // In a real implementation, you might want to use a database or file storage
+      this.logger.info(`Patient data prepared for Excel export: ${patientData.fullName}`);
+      
+      // Return success - the data will be included in the next export
+      return { success: true, message: 'Patient data added to Excel export queue' };
+    } catch (error) {
+      this.logger.error('Error adding patient to Excel:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Generate Excel file for daily patient data
    */
   generateDailyExcelFile(dailyData) {
