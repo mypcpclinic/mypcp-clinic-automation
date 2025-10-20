@@ -226,13 +226,20 @@ app.get('/setup-guide', (req, res) => {
 let googleService, aiService, emailService, dataService;
 try {
   googleService = new GoogleService();
+  logger.info('Google Service initialized successfully');
   aiService = new AIService();
   emailService = new EmailService();
   dataService = new DataService();
 } catch (error) {
   logger.error('Error initializing services:', error);
   // Create mock services for test mode
-  googleService = { addPatientIntake: () => Promise.resolve(), getDashboardStats: () => Promise.resolve({}) };
+  googleService = { 
+    addPatientIntake: () => {
+      logger.info('Mock Google Service: Patient data would be added to Google Sheets');
+      return Promise.resolve();
+    }, 
+    getDashboardStats: () => Promise.resolve({}) 
+  };
   aiService = { summarizeIntake: () => Promise.resolve('Mock summary') };
   emailService = { sendConfirmation: () => Promise.resolve(), sendReminder: () => Promise.resolve() };
   dataService = new DataService(); // Always initialize data service
@@ -897,12 +904,13 @@ function generateDashboardHTML(data) {
         /* Modal Styles */
         .modal {
             position: fixed;
-            z-index: 1000;
+            z-index: 99999;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.7);
+            display: none;
         }
         
         .modal-content {
@@ -1178,6 +1186,7 @@ function generateDashboardHTML(data) {
                 <div class="dashboard-title">
                     <h2>📊 Clinic Dashboard</h2>
                     <p>Real-time Analytics</p>
+                    <button onclick="showPatientDetails('TEST', 'Test Patient', '2025-10-20T00:00:00.000Z', 'pending', 'test@example.com', '(305) 555-0000', 'Test modal functionality')" style="background: #3CB6AD; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">Test Modal</button>
                 </div>
             </div>
         </div>
