@@ -863,18 +863,108 @@ function generateDashboardHTML(data) {
         .history-patients {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
         .history-patient {
             font-size: 13px;
-            padding: 4px 0;
+            padding: 6px 8px;
+            background: #F8F9FA;
+            border-radius: 6px;
+            border-left: 3px solid #3CB6AD;
+        }
+        
+        .patient-link {
+            display: block;
+            transition: all 0.2s ease;
+        }
+        
+        .patient-link:hover {
+            color: #2E8C83 !important;
+            text-decoration: underline !important;
         }
         
         .history-empty {
             font-size: 12px;
             color: #6c757d;
             font-style: italic;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #F9F5E9;
+            margin: 5% auto;
+            padding: 0;
+            border: none;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            background: #3CB6AD;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .patient-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #E8E8E8;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-row strong {
+            min-width: 120px;
+            color: #2E8C83;
         }
         .stats-grid {
             display: grid;
@@ -1140,7 +1230,7 @@ function generateDashboardHTML(data) {
                                 ${data.todayPatients.map(patient => `
                                     <tr>
                                         <td>${patient.id}</td>
-                                        <td><a href="/patient/${patient.id}" style="color: #3CB6AD; text-decoration: none; font-weight: 500;">${patient.name}</a></td>
+                                        <td><span onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}')" style="color: #3CB6AD; text-decoration: none; font-weight: 500; cursor: pointer;">${patient.name}</span></td>
                                         <td>${new Date(patient.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
                                         <td><span class="status-badge status-${patient.status}">${patient.status}</span></td>
                                     </tr>
@@ -1173,9 +1263,9 @@ function generateDashboardHTML(data) {
                                         <div class="history-patients">
                                             ${day.patients.map(patient => `
                                                 <div class="history-patient">
-                                                    <a href="/patient/${patient.id}" style="color: #3CB6AD; text-decoration: none;">
+                                                    <div class="patient-link" onclick="showPatientDetails('${patient.id}', '${patient.name}', '${patient.timestamp}', '${patient.status}')" style="color: #3CB6AD; text-decoration: none; cursor: pointer;">
                                                         ${patient.name} (ID: ${patient.id})
-                                                    </a>
+                                                    </div>
                                                 </div>
                                             `).join('')}
                                         </div>
@@ -1270,6 +1360,67 @@ function generateDashboardHTML(data) {
             </p>
         </div>
     </div>
+    
+    <!-- Patient Details Modal -->
+    <div id="patientModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Patient Details</h3>
+                <span class="close" onclick="closePatientModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="patientModalBody">
+                <!-- Patient details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+        
+        // Show patient details in modal
+        function showPatientDetails(id, name, timestamp, status) {
+            const modal = document.getElementById('patientModal');
+            const modalBody = document.getElementById('patientModalBody');
+            
+            modalBody.innerHTML = `
+                <div class="patient-details">
+                    <div class="detail-row">
+                        <strong>Patient ID:</strong> ${id}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Name:</strong> ${name}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Status:</strong> <span class="status-badge status-${status}">${status}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Submitted:</strong> ${new Date(timestamp).toLocaleString()}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Note:</strong> Full patient details are available in the system. This is a summary view.
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+        
+        // Close patient modal
+        function closePatientModal() {
+            document.getElementById('patientModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('patientModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
     
 </body>
 </html>`;
